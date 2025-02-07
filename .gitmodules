@@ -1,0 +1,6 @@
+[submodule "server/external/cJSON"]
+	path = server/external/cJSON
+	url = https://github.com/DaveGamble/cJSON
+[submodule "server/external/picohttpparser"]
+	path = server/external/picohttpparser
+	url = https://github.com/h2o/picohttpparser
