@@ -1,16 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <netinet/ip.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
 #include "server.h"
-
-#define PORT 1025
-#define ADDRESS INADDR_LOOPBACK
-#define QUEUE_LENGHT 50
 
 void handle_error(const char *errorName) {
     perror(errorName);
