@@ -21,8 +21,8 @@ int main() {
 
         struct destinationAddress destination;
 
-        long workingSocketFD = accept(socketFD,(struct sockaddr*) &(destination.address), &(destination.length));
-        if (workingSocketFD == -1) {
+        destination.socketFD = accept(socketFD,(struct sockaddr*) &(destination.address), &(destination.length));
+        if (destination.socketFD == -1) {
             handle_error("accept");
         }
 
