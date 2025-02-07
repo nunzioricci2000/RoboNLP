@@ -4,10 +4,9 @@
 #include <netinet/ip.h>
 #include <unistd.h>
 #include <pthread.h>
-
+#include "types.h"
 #include "server.h"
-
-void *accepting_tread(void *destinationSocketAddress);
+#include "request_handler.h"
 
 int main() {
     int socketFD;
@@ -21,7 +20,7 @@ int main() {
         pthread_t threadID;
         pthread_attr_t threadAttributes;
 
-        struct destinationAddress destination;
+        struct destination_address destination;
 
         destination.socketFD = accept(socketFD,(struct sockaddr*) &(destination.address), &(destination.length));
         if (destination.socketFD == -1) {
@@ -29,16 +28,6 @@ int main() {
         }
 
         pthread_attr_init(&threadAttributes);
-        pthread_create(&threadID, &threadAttributes, accepting_tread, &destination);
+        pthread_create(&threadID, &threadAttributes, request_handler, &destination);
     }
-}
-
-void *accepting_tread(void *destinationSocketAddress) {
-    struct destinationAddress* destination = (struct destinationAddress*) destinationSocketAddress;
-
-    // TODO: Edit to behave as needed
-    sendto(destination->socketFD, "Test message", 30, MSG_NOSIGNAL, (struct sockaddr*) &(destination->address), (destination->length));
-    
-    close(destination->socketFD);
-    pthread_exit(0);
 }
