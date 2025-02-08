@@ -1,6 +1,6 @@
 # Compiler configuration
 CC      = gcc
-CFLAGS  = -Wall -Wextra -std=c99
+CFLAGS  = -Wall -Wextra -std=c99 -I$(SRC_DIR) -I$(LIB_DIR)
 LDFLAGS =
 LIBS    =
 
@@ -8,7 +8,7 @@ LIBS    =
 SRC_DIR   = src
 LIB_DIR   = libs
 OBJ_DIR   = obj
-BUILD_DIR = build
+BUILD_DIR = bin
 
 # Source files and corresponding objects
 SOURCES      = $(wildcard $(SRC_DIR)/*.c)
@@ -24,17 +24,17 @@ all: $(TARGET)
 
 # Build final executable
 $(TARGET): $(ALL_OBJECTS)
-	@mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
 	$(CC) $(ALL_OBJECTS) -o $(TARGET) $(LDFLAGS) $(LIBS)
 
 # Compile source files from src folder
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile source files from libs folder
 $(OBJ_DIR)/%.o: $(LIB_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
