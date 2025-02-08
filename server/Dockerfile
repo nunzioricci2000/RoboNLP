@@ -1,5 +1,5 @@
 # Utilizziamo un'immagine base che include gli strumenti necessari (es. Ubuntu)
-FROM gcc:latest
+FROM gcc:14
 
 # Impostiamo la directory di lavoro
 WORKDIR /app
