@@ -2,9 +2,13 @@
 
 echo "Setting up the environment for the project"
 
-echo -n "Downloading dependencies..."
-git submodule update --init --recursive > /dev/null
-echo "done"
+if [[ " $@ " == *" --avoid-download "* ]]; then
+    echo "Skipping dependency download..."
+else
+    echo -n "Downloading dependencies..."
+    git submodule update --init --recursive > /dev/null
+    echo "done"
+fi
 
 mkdir -p libs
 
