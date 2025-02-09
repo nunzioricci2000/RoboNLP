@@ -28,7 +28,6 @@ void *request_handler(void *destinationSocketAddress) {
     int ret = phr_parse_request(buf, r, &method, &method_len, &path, &path_len,
                                 &minor_version, headers, &num_headers, 0);
     if(ret < 0) {
-        // Parsing failed, send 400 error response.
         const char *error_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n";
         sendto(fd, error_response, strlen(error_response), MSG_NOSIGNAL,
                (struct sockaddr*) &(destination->address), destination->length);
@@ -36,7 +35,6 @@ void *request_handler(void *destinationSocketAddress) {
         pthread_exit(NULL);
     }
     
-    // Compose the response body with the request data.
     char response_body[8192];
     int body_len = snprintf(response_body, sizeof(response_body),
         "Received Request:\nMethod: %.*s\nPath: %.*s\nHTTP version: 1.%d\nHeaders:\n",
@@ -48,13 +46,11 @@ void *request_handler(void *destinationSocketAddress) {
             (int)headers[i].value_len, headers[i].value);
     }
     
-    // Compose the full HTTP response.
     char response_header[256];
     int header_len = snprintf(response_header, sizeof(response_header),
         "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nContent-Type: text/plain\r\n\r\n",
         body_len);
     
-    // Send the response header and body.
     sendto(fd, response_header, header_len, MSG_NOSIGNAL,
            (struct sockaddr*) &(destination->address), destination->length);
     sendto(fd, response_body, body_len, MSG_NOSIGNAL,
