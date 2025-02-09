@@ -17,9 +17,10 @@
 *.app
 
 # Build directories
-*/build/
-*/bin/
-*/obj/
+build/
+bin/
+obj/
+libs/
 
 # Debug files
 *.dSYM/
