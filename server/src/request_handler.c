@@ -9,130 +9,121 @@
 #include "types.h"
 #include "response_builders.h"
 #include "picohttpparser.h"
+#include "user_handler.h"
 #include "request_handler.h"
 
 int recieve_request_head(int fd, http_request *request, char *buf, size_t buf_size);
 int recieve_request_body(int fd, http_request *request, char *buf, size_t buf_size, size_t body_offset);
 int recieve_request(int fd, http_request *request, char *buf, size_t buf_size);
 int send_response(int fd, http_response *response);
+static void free_http_response(http_response *response);
 
 void *request_handler(void *destinationSocketAddress) {
-    fprintf(stderr, "DEBUG: Starting request_handler\n");
     int client_fd = *((int *)destinationSocketAddress);
     char buf[REQUEST_BUFFER_SIZE];
     http_request request;
     http_response response;
-
-    fprintf(stderr, "DEBUG: Receiving request from client_fd %d\n", client_fd);
     int pret = recieve_request(client_fd, &request, buf, sizeof(buf));
     if (pret == -1) {
-        fprintf(stderr, "DEBUG: Invalid request, preparing 400 response\n");
         build_bad_request_response(&response);
     } else {
-        fprintf(stderr, "DEBUG: Request received successfully\n");
         if (request.method_len == 3 && memcmp(request.method, "GET", 3) == 0) {
             int route = -1;
             if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
                 route = 0;
+            } else if (request.path_len == 5 && memcmp(request.path, "/user", 5) == 0) {
+                route = 1;
             }
-            // Aggiungi altri "else if" per altre path riconosciute, ad esempio:
-            // else if (request.path_len == 4 && memcmp(request.path, "/foo", 4) == 0) {
-            //     route = 1;
-            // }
-            
             switch (route) {
                 case 0:
-                    fprintf(stderr, "DEBUG: Handling root path\n");
-                    // Funzione specifica per la root (da implementare)
                     build_ok_response(&response);
                     break;
-                // case 1:
-                //     fprintf(stderr, "DEBUG: Handling /foo path\n");
-                //     // Funzione specifica per "/foo" (da implementare)
-                //     build_ok_response(&response);
-                //     break;
+                case 1:
+                    user_handler(&request, &response);
+                    break;
                 default:
-                    fprintf(stderr, "DEBUG: Path not found, sending 404\n");
                     build_not_found_response(&response);
                     break;
             }
         } else {
-            fprintf(stderr, "DEBUG: Method not allowed, sending 405\n");
             build_method_not_allowed_response(&response);
         }
     }
-
-    fprintf(stderr, "DEBUG: Sending response to client_fd %d\n", client_fd);
     send_response(client_fd, &response);
     close(client_fd);
-    fprintf(stderr, "DEBUG: Finished handling request, closed client_fd %d\n", client_fd);
     return NULL;
 }
 
 int recieve_request(int fd, http_request *request, char *buf, size_t buf_size) {
-    fprintf(stderr, "DEBUG: Entering recieve_request\n");
     request->num_headers = sizeof(request->headers)/sizeof(request->headers[0]);
     int ret = recieve_request_head(fd, request, buf, buf_size);
     if(ret == -1) {
-        fprintf(stderr, "DEBUG: Error in recieve_request_head\n");
         return -1;
     }
-    fprintf(stderr, "DEBUG: Request head received. Parsing body...\n");
     if(recieve_request_body(fd, request, buf, buf_size, ret) == -1) {
-        fprintf(stderr, "DEBUG: Error in recieve_request_body\n");
         return -1;
     }
-    fprintf(stderr, "DEBUG: Request body received.\n");
     return 0;
 }
 
 static int parse_request_head(const char *buf, size_t buf_len, http_request *request) {
-    return phr_parse_request(
+    const char *method_ptr;
+    size_t method_len;
+    const char *path_ptr;
+    size_t path_len;
+    int minor_version;
+    struct phr_header tmp_headers[MAX_HEADERS];
+    size_t tmp_num_headers = MAX_HEADERS;
+    
+    int ret = phr_parse_request(
         buf, buf_len,
-        &request->method, &request->method_len,
-        &request->path, &request->path_len,
-        &request->minor_version,
-        request->headers, &request->num_headers, 0
+        &method_ptr, &method_len,
+        &path_ptr, &path_len,
+        &minor_version,
+        tmp_headers, &tmp_num_headers, 0
     );
+    if (ret > 0) {
+        size_t copy_method = method_len < METHOD_LEN - 1 ? method_len : METHOD_LEN - 1;
+        memcpy(request->method, method_ptr, copy_method);
+        request->method[copy_method] = '\0';
+        request->method_len = copy_method;
+        size_t copy_path = path_len < PATH_LEN - 1 ? path_len : PATH_LEN - 1;
+        memcpy(request->path, path_ptr, copy_path);
+        request->path[copy_path] = '\0';
+        request->path_len = copy_path;
+        request->num_headers = 0;
+        for (size_t i = 0; i < tmp_num_headers && i < MAX_HEADERS; i++) {
+            size_t copy_name = tmp_headers[i].name_len < MAX_HEADER_NAME_LEN - 1 ? tmp_headers[i].name_len : MAX_HEADER_NAME_LEN - 1;
+            memcpy(request->headers[i].name, tmp_headers[i].name, copy_name);
+            request->headers[i].name[copy_name] = '\0';
+            request->headers[i].name_len = copy_name;
+            size_t copy_value = tmp_headers[i].value_len < MAX_HEADER_VALUE_LEN - 1 ? tmp_headers[i].value_len : MAX_HEADER_VALUE_LEN - 1;
+            memcpy(request->headers[i].value, tmp_headers[i].value, copy_value);
+            request->headers[i].value[copy_value] = '\0';
+            request->headers[i].value_len = copy_value;
+            request->num_headers++;
+        }
+        request->minor_version = minor_version;
+    }
+    return ret;
 }
 
 int recieve_request_head(int fd, http_request *request, char *buf, size_t buf_size) {
-    fprintf(stderr, "DEBUG: Entering recieve_request_head\n");
     size_t buf_len = 0;
     while (1) {
         ssize_t rret = recv(fd, buf + buf_len, buf_size - buf_len, 0);
         if (rret <= 0) {
-            fprintf(stderr, "DEBUG: Error or disconnect while reading head\n");
             return -1;
         }
         buf_len += rret;
         int pret = parse_request_head(buf, buf_len, request);
         if (pret > 0) {
-            fprintf(stderr, "DEBUG: Request head fully parsed\n");
             return pret;
         }
         if (pret == -1) {
-            fprintf(stderr, "DEBUG: Malformed request head\n");
-            fprintf(stderr, "DEBUG: Buffer content: ");
-            for (size_t i = 0; i < buf_len; i++) {
-                switch (buf[i]) {
-                    case '\n': fprintf(stderr, "\\n"); break;
-                    case '\r': fprintf(stderr, "\\r"); break;
-                    case '\t': fprintf(stderr, "\\t"); break;
-                    case '\\': fprintf(stderr, "\\\\"); break;
-                    default:
-                        if (buf[i] >= 32 && buf[i] < 127) {
-                            fprintf(stderr, "%c", buf[i]);
-                        } else {
-                            fprintf(stderr, "\\x%02x", (unsigned char)buf[i]);
-                        }
-                }
-            }
-            fprintf(stderr, "\n");
             return -1;
         }
         if (buf_len == buf_size) {
-            fprintf(stderr, "DEBUG: Buffer full, but request not parsed\n");
             return -1;
         }
     }
@@ -166,56 +157,54 @@ static ssize_t read_remaining_body(int fd, char *buf, size_t total_bytes, size_t
 }
 
 int recieve_request_body(int fd, http_request *request, char *buf, size_t buf_size, size_t body_offset) {
-    fprintf(stderr, "DEBUG: Entering recieve_request_body\n");
     int content_length = extract_content_length(request);
     if (content_length < 0) {
-        fprintf(stderr, "DEBUG: No body to read (Content-Length missing)\n");
-        request->body = NULL;
         request->body_len = 0;
         return 0;
     }
     size_t already_read = buf_size > body_offset ? buf_size - body_offset : 0;
     if (already_read >= (size_t)content_length) {
-        request->body = buf + body_offset;
+        memcpy(request->body, buf + body_offset, content_length);
         request->body_len = content_length;
-        fprintf(stderr, "DEBUG: Body already in buffer\n");
         return 0;
     }
     size_t remaining = content_length - already_read;
-    fprintf(stderr, "DEBUG: Need to read %zu more bytes of body\n", remaining);
     ssize_t total_bytes = read_remaining_body(fd, buf, buf_size, remaining);
     if (total_bytes < 0) {
-        fprintf(stderr, "DEBUG: Error receiving remaining body\n");
         return -1;
     }
-    request->body = buf + body_offset;
+    memcpy(request->body, buf + body_offset, content_length);
     request->body_len = content_length;
-    fprintf(stderr, "DEBUG: Body read completely\n");
     return 0;
 }
 
 int send_response(int fd, http_response *response) {
-    fprintf(stderr, "DEBUG: Entering send_response\n");
-    char buf[RESPONSE_BUFFER_SIZE];
-    size_t buf_len = 0;
-    buf_len += snprintf(buf + buf_len, sizeof(buf) - buf_len, "HTTP/1.1 %d %s\r\n",
-                        response->status_code, response->status_phrase);
-    for(int i = 0; i < response->num_headers; i++) {
-        buf_len += snprintf(buf + buf_len, sizeof(buf) - buf_len, "%.*s: %.*s\r\n",
-                            (int)response->headers[i].name_len, response->headers[i].name,
-                            (int)response->headers[i].value_len, response->headers[i].value);
+    char header[RESPONSE_BUFFER_SIZE];
+    size_t header_len = 0;
+    header_len += snprintf(header + header_len, sizeof(header) - header_len,
+                             "HTTP/1.1 %d %s\r\n", response->status_code, response->status_phrase);
+    for (int i = 0; i < response->num_headers; i++) {
+        header_len += snprintf(header + header_len, sizeof(header) - header_len,
+                                 "%.*s: %.*s\r\n",
+                                 (int)response->headers[i].name_len, response->headers[i].name,
+                                 (int)response->headers[i].value_len, response->headers[i].value);
     }
-    buf_len += snprintf(buf + buf_len, sizeof(buf) - buf_len, "\r\n");
-    ssize_t wret = send(fd, buf, buf_len, 0);
-    if(wret == -1) {
+    header_len += snprintf(header + header_len, sizeof(header) - header_len, "\r\n");
+
+    size_t total_len = header_len + response->body_len;
+    char *send_buf = malloc(total_len);
+    if (send_buf == NULL) {
+        perror("malloc");
+        return -1;
+    }
+    memcpy(send_buf, header, header_len);
+    memcpy(send_buf + header_len, response->body, response->body_len);
+
+    ssize_t wret = send(fd, send_buf, total_len, 0);
+    free(send_buf);
+    if (wret == -1) {
         perror("send");
         return -1;
     }
-    wret = send(fd, response->body, response->body_len, 0);
-    if(wret == -1) {
-        perror("send");
-        return -1;
-    }
-    fprintf(stderr, "DEBUG: Response sent successfully\n");
     return 0;
 }

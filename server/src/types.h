@@ -4,6 +4,15 @@
 #include <netinet/ip.h>
 #include "picohttpparser.h"
 
+#define MAX_HEADER_NAME_LEN 128
+#define MAX_HEADER_VALUE_LEN 4096
+#define METHOD_LEN 10
+#define PATH_LEN 100
+#define MAX_HEADERS 100
+#define MAX_REQUEST_BODY_SIZE 4096
+#define MAX_RESPONSE_STATUS_PHRASE_LEN 128
+#define MAX_RESPONSE_BODY_SIZE 4096
+
 struct destination_address {
     int socketFD;
     struct sockaddr_in address;
@@ -11,25 +20,32 @@ struct destination_address {
 };
 
 typedef struct {
-    const char *method;
+    char name[MAX_HEADER_NAME_LEN];
+    size_t name_len;
+    char value[MAX_HEADER_VALUE_LEN];
+    size_t value_len;
+} http_header;
+
+typedef struct {
+    char method[METHOD_LEN];
     size_t method_len;
-    const char *path;
+    char path[PATH_LEN];
     size_t path_len;
     int minor_version;
-    struct phr_header headers[100];
+    http_header headers[MAX_HEADERS];
     size_t num_headers;
-    const char *body;
+    char body[MAX_REQUEST_BODY_SIZE];
     size_t body_len;
 } http_request;
 
 typedef struct {
     int status_code;
-    const char *status_phrase;
+    char status_phrase[MAX_RESPONSE_STATUS_PHRASE_LEN];
     size_t status_phrase_len;
     int minor_version;
-    struct phr_header headers[100];
+    http_header headers[MAX_HEADERS];
     size_t num_headers;
-    const char *body;
+    char body[MAX_RESPONSE_BODY_SIZE];
     size_t body_len;
 } http_response;
 
