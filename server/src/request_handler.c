@@ -7,6 +7,7 @@
 #include <strings.h>
 #include <sys/socket.h>
 #include "types.h"
+#include "response_builders.h"
 #include "picohttpparser.h"
 #include "request_handler.h"
 
@@ -27,19 +28,14 @@ void *request_handler(void *destinationSocketAddress) {
     int pret = recieve_request(client_fd, &request, buf, sizeof(buf));
     if (pret == -1) {
         fprintf(stderr, "DEBUG: Invalid request, preparing 400 response\n");
-        response.status_code = 400;
-        response.status_phrase = "Bad Request";
-        response.num_headers = 0;
-        response.body = NULL;
-        response.body_len = 0;
+        build_bad_request_response(&response);
     } else {
         fprintf(stderr, "DEBUG: Request received successfully\n");
         if(request.method_len == 3 && memcmp(request.method, "GET", 3) == 0) {
             fprintf(stderr, "DEBUG: Handle GET request\n");
             if(request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
                 fprintf(stderr, "DEBUG: Sending default hello page\n");
-                response.status_code = 200;
-                response.status_phrase = "OK";
+                build_ok_response(&response);
                 response.num_headers = 1;
                 response.headers[0].name = "Content-Type";
                 response.headers[0].name_len = 12;
@@ -49,19 +45,11 @@ void *request_handler(void *destinationSocketAddress) {
                 response.body_len = 41;
             } else {
                 fprintf(stderr, "DEBUG: Resource not found, sending 404\n");
-                response.status_code = 404;
-                response.status_phrase = "Not Found";
-                response.num_headers = 0;
-                response.body = NULL;
-                response.body_len = 0;
+                build_not_found_response(&response);
             }
         } else {
             fprintf(stderr, "DEBUG: Method not allowed, sending 405\n");
-            response.status_code = 405;
-            response.status_phrase = "Method Not Allowed";
-            response.num_headers = 0;
-            response.body = NULL;
-            response.body_len = 0;
+            build_method_not_allowed_response(&response);
         }
     }
 
