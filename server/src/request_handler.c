@@ -20,7 +20,6 @@ void *request_handler(void *destinationSocketAddress) {
     fprintf(stderr, "DEBUG: Starting request_handler\n");
     int client_fd = *((int *)destinationSocketAddress);
     char buf[REQUEST_BUFFER_SIZE];
-    char res_buf[RESPONSE_BUFFER_SIZE];
     http_request request;
     http_response response;
 
@@ -31,21 +30,31 @@ void *request_handler(void *destinationSocketAddress) {
         build_bad_request_response(&response);
     } else {
         fprintf(stderr, "DEBUG: Request received successfully\n");
-        if(request.method_len == 3 && memcmp(request.method, "GET", 3) == 0) {
-            fprintf(stderr, "DEBUG: Handle GET request\n");
-            if(request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
-                fprintf(stderr, "DEBUG: Sending default hello page\n");
-                build_ok_response(&response);
-                response.num_headers = 1;
-                response.headers[0].name = "Content-Type";
-                response.headers[0].name_len = 12;
-                response.headers[0].value = "text/html";
-                response.headers[0].value_len = 9;
-                response.body = "<html><body><h1>Hello, World!</h1></body></html>";
-                response.body_len = 41;
-            } else {
-                fprintf(stderr, "DEBUG: Resource not found, sending 404\n");
-                build_not_found_response(&response);
+        if (request.method_len == 3 && memcmp(request.method, "GET", 3) == 0) {
+            int route = -1;
+            if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
+                route = 0;
+            }
+            // Aggiungi altri "else if" per altre path riconosciute, ad esempio:
+            // else if (request.path_len == 4 && memcmp(request.path, "/foo", 4) == 0) {
+            //     route = 1;
+            // }
+            
+            switch (route) {
+                case 0:
+                    fprintf(stderr, "DEBUG: Handling root path\n");
+                    // Funzione specifica per la root (da implementare)
+                    build_ok_response(&response);
+                    break;
+                // case 1:
+                //     fprintf(stderr, "DEBUG: Handling /foo path\n");
+                //     // Funzione specifica per "/foo" (da implementare)
+                //     build_ok_response(&response);
+                //     break;
+                default:
+                    fprintf(stderr, "DEBUG: Path not found, sending 404\n");
+                    build_not_found_response(&response);
+                    break;
             }
         } else {
             fprintf(stderr, "DEBUG: Method not allowed, sending 405\n");
