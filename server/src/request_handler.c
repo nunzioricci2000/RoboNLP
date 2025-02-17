@@ -27,26 +27,22 @@ void *request_handler(void *destinationSocketAddress) {
     if (pret == -1) {
         build_bad_request_response(&response);
     } else {
-        if (request.method_len == 3 && memcmp(request.method, "GET", 3) == 0) {
-            int route = -1;
-            if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
-                route = 0;
-            } else if (request.path_len == 5 && memcmp(request.path, "/user", 5) == 0) {
-                route = 1;
-            }
-            switch (route) {
-                case 0:
-                    build_ok_response(&response);
-                    break;
-                case 1:
-                    user_handler(&request, &response);
-                    break;
-                default:
-                    build_not_found_response(&response);
-                    break;
-            }
-        } else {
-            build_method_not_allowed_response(&response);
+        int route = -1;
+        if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
+            route = 0;
+        } else if (request.path_len == 5 && memcmp(request.path, "/user", 5) == 0) {
+            route = 1;
+        }
+        switch (route) {
+            case 0:
+                build_ok_response(&response);
+                break;
+            case 1:
+                user_handler(&request, &response);
+                break;
+            default:
+                build_not_found_response(&response);
+                break;
         }
     }
     send_response(client_fd, &response);
