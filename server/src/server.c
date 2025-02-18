@@ -1,21 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <netinet/ip.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
 #include "server.h"
+#include "utils.h"
 
 #define PORT 1025
 #define ADDRESS INADDR_LOOPBACK
 #define QUEUE_LENGHT 50
-
-void handle_error(const char *errorName) {
-    perror(errorName);
-    exit(-1);
-}
 
 void server_socket_setup(int *socketFD, struct sockaddr_in *socketAddress) {
     *socketFD = socket(AF_INET, SOCK_STREAM, 0);

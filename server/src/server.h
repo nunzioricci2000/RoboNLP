@@ -1,5 +1,8 @@
+#ifndef SERVER
+#define SERVER
+#include <netinet/ip.h>
+
 void server_socket_setup(int *socketFD, struct sockaddr_in *socketAddress);
-void handle_error(const char *errorName);
 void *accepting_tread(void *destinationSocketAddress);
 
 struct destinationAddress {
@@ -7,3 +10,4 @@ struct destinationAddress {
     struct sockaddr_in address;
     socklen_t length;
 };
+#endif

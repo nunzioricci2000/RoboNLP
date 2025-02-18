@@ -6,6 +6,7 @@
 #include <pthread.h>
 
 #include "server.h"
+#include "utils.h"
 
 void *accepting_tread(void *destinationSocketAddress);
 
