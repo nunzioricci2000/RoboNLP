@@ -12,9 +12,9 @@
 #include "user_handler.h"
 #include "request_handler.h"
 
-int recieve_request_head(int fd, http_request *request, char *buf, size_t buf_size);
-int recieve_request_body(int fd, http_request *request, char *buf, size_t buf_size, size_t body_offset);
-int recieve_request(int fd, http_request *request, char *buf, size_t buf_size);
+int receive_request_head(int fd, http_request *request, char *buf, size_t buf_size);
+int receive_request_body(int fd, http_request *request, char *buf, size_t buf_size, size_t body_offset);
+int receive_request(int fd, http_request *request, char *buf, size_t buf_size);
 int send_response(int fd, http_response *response);
 static void free_http_response(http_response *response);
 
@@ -23,7 +23,7 @@ void *request_handler(void *destinationSocketAddress) {
     char buf[REQUEST_BUFFER_SIZE];
     http_request request;
     http_response response;
-    int pret = recieve_request(client_fd, &request, buf, sizeof(buf));
+    int pret = receive_request(client_fd, &request, buf, sizeof(buf));
     if (pret == -1) {
         build_bad_request_response(&response);
     } else {
@@ -50,13 +50,13 @@ void *request_handler(void *destinationSocketAddress) {
     return NULL;
 }
 
-int recieve_request(int fd, http_request *request, char *buf, size_t buf_size) {
+int receive_request(int fd, http_request *request, char *buf, size_t buf_size) {
     request->num_headers = sizeof(request->headers)/sizeof(request->headers[0]);
-    int ret = recieve_request_head(fd, request, buf, buf_size);
+    int ret = receive_request_head(fd, request, buf, buf_size);
     if(ret == -1) {
         return -1;
     }
-    if(recieve_request_body(fd, request, buf, buf_size, ret) == -1) {
+    if(receive_request_body(fd, request, buf, buf_size, ret) == -1) {
         return -1;
     }
     return 0;
@@ -104,7 +104,7 @@ static int parse_request_head(const char *buf, size_t buf_len, http_request *req
     return ret;
 }
 
-int recieve_request_head(int fd, http_request *request, char *buf, size_t buf_size) {
+int receive_request_head(int fd, http_request *request, char *buf, size_t buf_size) {
     size_t buf_len = 0;
     while (1) {
         ssize_t rret = recv(fd, buf + buf_len, buf_size - buf_len, 0);
@@ -152,7 +152,7 @@ static ssize_t read_remaining_body(int fd, char *buf, size_t total_bytes, size_t
     return total_bytes;
 }
 
-int recieve_request_body(int fd, http_request *request, char *buf, size_t buf_size, size_t body_offset) {
+int receive_request_body(int fd, http_request *request, char *buf, size_t buf_size, size_t body_offset) {
     int content_length = extract_content_length(request);
     if (content_length < 0) {
         request->body_len = 0;
