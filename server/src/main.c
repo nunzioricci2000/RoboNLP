@@ -7,6 +7,7 @@
 #include "types.h"
 #include "server.h"
 #include "request_handler.h"
+#include "utils.h"
 
 int main() {
     int socketFD;
