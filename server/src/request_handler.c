@@ -113,13 +113,13 @@ int receive_request_head(int fd, http_request *request, char *buf, size_t buf_si
         }
         buf_len += rret;
         int pret = parse_request_head(buf, buf_len, request);
-        if (pret > 0) {
+        if (pret > 0) { // request head parsed successfully
             return pret;
         }
-        if (pret == -1) {
+        if (pret == -1) { // parse error
             return -1;
         }
-        if (buf_len == buf_size) {
+        if (buf_len == buf_size) { // buffer full
             return -1;
         }
     }
