@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "user_handler.h": "c",
+        "__locale": "c",
+        "string": "c",
+        "string_view": "c"
+    }
+}

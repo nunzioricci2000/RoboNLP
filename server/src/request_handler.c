@@ -30,7 +30,7 @@ void *request_handler(void *destinationSocketAddress) {
         int route = -1;
         if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
             route = 0;
-        } else if (request.path_len == 5 && memcmp(request.path, "/user", 5) == 0) {
+        } else if (request.path_len > 5 && memcmp(request.path, "/user", 5) == 0) {
             route = 1;
         }
         switch (route) {
@@ -126,7 +126,7 @@ int receive_request_head(int fd, http_request *request, char *buf, size_t buf_si
 }
 
 static int extract_content_length(const http_request *request) {
-    for (size_t i = 0; i < request->num_headers; i++) {
+    for (int i = 0; i < request->num_headers; i++) {
         if (request->headers[i].name_len == 14 &&
             strncasecmp(request->headers[i].name, "Content-Length", 14) == 0) {
             char clen[32] = {0};
