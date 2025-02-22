@@ -126,7 +126,7 @@ int receive_request_head(int fd, http_request *request, char *buf, size_t buf_si
 }
 
 static int extract_content_length(const http_request *request) {
-    for (int i = 0; i < request->num_headers; i++) {
+    for (size_t i = 0; i < request->num_headers; i++) {
         if (request->headers[i].name_len == 14 &&
             strncasecmp(request->headers[i].name, "Content-Length", 14) == 0) {
             char clen[32] = {0};
