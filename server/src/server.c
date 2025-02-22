@@ -7,10 +7,7 @@
 #include <pthread.h>
 #include "server.h"
 #include "utils.h"
-
-#define PORT 1025
-#define ADDRESS INADDR_LOOPBACK
-#define QUEUE_LENGHT 50
+#include "environment.h"
 
 void server_socket_setup(int *socketFD, struct sockaddr_in *socketAddress) {
     *socketFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -23,7 +20,8 @@ void server_socket_setup(int *socketFD, struct sockaddr_in *socketAddress) {
 
     //Assignments
     socketAddress->sin_family = AF_INET;
-    socketAddress->sin_port = htons(PORT);
+    int port = get_port();
+    socketAddress->sin_port = htons(port);
     socketAddress->sin_addr.s_addr = htonl(ADDRESS);
     
     socklen_t socketLength = sizeof(*socketAddress);
@@ -31,7 +29,7 @@ void server_socket_setup(int *socketFD, struct sockaddr_in *socketAddress) {
         handle_error("bind");
     }
 
-    if ( listen(*socketFD, QUEUE_LENGHT) == -1 ) {
+    if ( listen(*socketFD, QUEUE_LENGTH) == -1 ) {
         handle_error("listen");
     }
 }

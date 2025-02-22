@@ -2,7 +2,7 @@
 #include "utils.h"
 
 
-inline int get_port() {
+int get_port() {
     char* port = getenv("PORT");
     if (port == NULL) {
         handle_error("Missing PORT in environment");
