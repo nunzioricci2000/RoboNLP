@@ -11,5 +11,6 @@ int build_internal_server_error_response(http_response *res);
 int fix_content_length(http_response *response);
 int build_created_response(http_response *res);
 int build_conflict_response(http_response *res);
+int build_access_denied_response(http_response *res);
 
 #endif

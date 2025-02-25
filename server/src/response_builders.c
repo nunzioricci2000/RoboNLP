@@ -80,3 +80,7 @@ int build_created_response(http_response *res) {
 int build_conflict_response(http_response *res) {
     return build_response(res, 409, "Conflict", "<html><body><h1>409 Conflict</h1></body></html>");
 }
+
+int build_unauthorized_response(http_response *res) {
+    return build_response(res, 401, "Unauthorized", "<html><body><h1>401 Unauthorized</h1></body></html>");
+}

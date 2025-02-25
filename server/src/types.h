@@ -14,10 +14,10 @@
 #define MAX_RESPONSE_STATUS_PHRASE_LEN 128
 #define MAX_RESPONSE_BODY_SIZE 4096
 
-#define MAX_USER_FACTS 100
-#define MAX_FACT_LENGTH 500
+#define MAX_FACTS_LENGTH 2048
 #define MAX_USERNAME_LENGTH 100
 #define MAX_NAME_LENGTH 100
+#define FIELDS {"username", "name", "extraversion", "agreeableness", "conscientiousness", "emotional_stability", "openness_to_experience", "facts"}
 
 // HTTP request and response structures
 struct destination_address {
@@ -60,12 +60,12 @@ typedef struct {
 typedef struct {
     char username[MAX_USERNAME_LENGTH];
     char name[MAX_NAME_LENGTH];
-    float extraversion;
-    float agreeableness;
-    float conscientiousness;
-    float emotional_stability;
-    float openness_to_experience;
-    char facts[MAX_USER_FACTS][MAX_FACT_LENGTH];
+    double extraversion;
+    double agreeableness;
+    double conscientiousness;
+    double emotional_stability;
+    double openness_to_experience;
+    char facts[MAX_FACTS_LENGTH];
 } user_profile;
 
 #endif
