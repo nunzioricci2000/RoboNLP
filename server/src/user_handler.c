@@ -9,20 +9,24 @@
 #include "utils.h"
 
 void user_handler(http_request *request, http_response *response) {
-    char *username = NULL;
-    char *filename = NULL;
-    int path_type = separate_path(request->path, &username, &filename);
+    char username[MAX_USERNAME_LENGTH];
+    char field_name[MAX_FIELD_NAME_LENGTH];
+    int path_type = separate_path(request->path, username, field_name);
 
     if (path_type >= 1) {
         if (!is_valid_user(username)) {
             build_not_found_response(response);
+            strcpy(response->body, "User not found");
+            response->body_len = strlen(response->body);
             return;
         }
     }
 
     if (path_type == 2) {
-        if (!is_valid_filename(filename)) {
+        if (!is_valid_field_name(field_name)) {
             build_not_found_response(response);
+            strcpy(response->body, "Field not found");
+            response->body_len = strlen(response->body);
             return;
         }
     }
@@ -59,6 +63,7 @@ void user_handler(http_request *request, http_response *response) {
             } else{
                 if (strcmp(profile.username, "") == 0 || strcmp(profile.name, "") == 0 ) {
                     build_bad_request_response(response);
+                    printf("username (%s) or name (%s) were not found\n", profile.username, profile.name);
                 } else if (is_valid_user(profile.username)) {
                     build_conflict_response(response);
                 } else {
@@ -84,8 +89,7 @@ void user_handler(http_request *request, http_response *response) {
             }
             break;
         case 3: //PUT
-            //TO DO implement PUT
-            user_profile profile;
+            //user_profile profile;
             if (parse_user_profile(&profile, request->body) < 0) {
                 build_bad_request_response(response);
             } else {

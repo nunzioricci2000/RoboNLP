@@ -30,12 +30,12 @@ void *request_handler(void *destinationSocketAddress) {
         int route = -1;
         if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
             route = 0;
-        } else if (request.path_len > 5 && memcmp(request.path, "/user", 5) == 0) {
+        } else if (request.path_len >= 5 && memcmp(request.path, "/user", 5) == 0) {
             route = 1;
         }
         switch (route) {
             case 0:
-                build_ok_response(&response);
+                build_unauthorized_response(&response);
                 break;
             case 1:
                 user_handler(&request, &response);

@@ -17,6 +17,7 @@
 #define MAX_FACTS_LENGTH 2048
 #define MAX_USERNAME_LENGTH 100
 #define MAX_NAME_LENGTH 100
+#define MAX_FIELD_NAME_LENGTH 100
 #define FIELDS {"username", "name", "extraversion", "agreeableness", "conscientiousness", "emotional_stability", "openness_to_experience", "facts"}
 
 // HTTP request and response structures

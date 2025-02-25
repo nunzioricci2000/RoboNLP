@@ -3,10 +3,11 @@
 #include <string.h>
 #include <unistd.h>
 #include "types.h"
+#include "cJSON.h"
+#include "file_operations.h"
 
 
-
-int separate_path(const char *path, char **username, char **filename) {
+int separate_path(const char *path, char username[], char field_name[]) {
     char path_copy[strlen(path) + 1];
     strcpy(path_copy, path);
 
@@ -15,10 +16,22 @@ int separate_path(const char *path, char **username, char **filename) {
         return -1; //invalid path
     }
     
-    *username = strtok(NULL, "/");
-    *filename = strtok(NULL, "/");
+    int found = 0;
+    char* temp = NULL;
+    temp = strtok(NULL, "/");
 
-    return (username != NULL) + (filename != NULL); //Return 1 if there was only the username, 2 if there was both username and filename, 0 if neither
+    if ( temp != NULL ) {
+        found++;
+        strcpy(username, temp);
+        temp = strtok(NULL, "/");
+            if ( temp != NULL ) {
+                found++;
+                strcpy(field_name, temp);
+            }
+    }
+
+    //Return 1 if there was only the username, 2 if there was both username and filename, 0 if neither 
+    return found;
 }
 
 int is_valid_user(char *username) { 
@@ -27,7 +40,7 @@ int is_valid_user(char *username) {
     return access(path, F_OK) == 0;
 }
 
-int is_valid_filename(char *filename) {
+int is_valid_field_name(char *filename) {
     char *acceptable_names[] = FIELDS;
     int number_of_names = sizeof(acceptable_names)/sizeof(acceptable_names[0]);
     for (int i = 0; i < number_of_names; i++) {
@@ -38,6 +51,34 @@ int is_valid_filename(char *filename) {
     return 0;
 }
 
+void user_profile_to_string(user_profile profile, char* buf) {
+    cJSON *json = cJSON_CreateObject();
+cJSON_AddStringToObject(json, "name", profile.name);
+if (profile.extraversion >= 0) {
+    cJSON_AddNumberToObject(json, "extraversion", profile.extraversion);
+}  
+if (profile.agreeableness >= 0) {
+    cJSON_AddNumberToObject(json, "agreeableness", profile.agreeableness);
+}
+if (profile.conscientiousness >= 0) {
+    cJSON_AddNumberToObject(json, "conscientiousness", profile.conscientiousness);
+}
+if (profile.emotional_stability >= 0) {
+    cJSON_AddNumberToObject(json, "emotional_stability", profile.emotional_stability);
+}
+if (profile.openness_to_experience >= 0) {
+    cJSON_AddNumberToObject(json, "openness_to_experience", profile.openness_to_experience);
+}
+if (strcmp(profile.facts, "") != 0) {
+    cJSON_AddStringToObject(json, "facts", profile.facts);
+}
+
+char *content = cJSON_Print(json);
+cJSON_Delete(json);
+strcpy(buf, content);
+free(content);
+}
+
 int delete_user_file(char *username) {
     char path[PATH_LEN] = "/user/";
     strcat(path, username);
@@ -46,9 +87,9 @@ int delete_user_file(char *username) {
     return unlink(path);
 }
 
-int get_user_file(char *user, char *buffer) {
+int get_user_file(char *username, char *buffer) {
     char path[PATH_LEN] = "/user/";
-    strcat(path, user);
+    strcat(path, username);
 
 
     FILE *file = fopen(path, "r");
@@ -104,7 +145,18 @@ int put_user_file(user_profile updates_profile) {
         strcat(profile_to_update.facts, updates_profile.facts);
     }
 
-    //Save updated user file in memory
+    user_profile_to_string(profile_to_update, buf);
+
+    char path[PATH_LEN] = "/user/";
+    strcat(path, updates_profile.username);
+    FILE *file = fopen(path, "w");
+    if (file == NULL) {
+        return -1;
+    }
+
+    fwrite(buf, 1, sizeof(buf), file);
+    fclose(file);
+    return 0;
 }
 
 int post_user_file(user_profile profile) {
@@ -122,7 +174,6 @@ int post_user_file(user_profile profile) {
 
     fwrite(content, 1, sizeof(content), file);
     fclose(file);
-    free(content);
     return 0;
 }
 
@@ -146,15 +197,17 @@ void parse_double_field(double *dest, cJSON *json, const char* field) {
 
 int parse_user_profile(user_profile* profile, char* buf) {  
     if (buf == NULL) {
+        printf("Buffer is NULL in parse_user_profile\n");
         return -1;
     }
     cJSON *json = cJSON_Parse(buf);
     if (json == NULL) {
+        printf("json is NULL in parse_user_profile\n");
         return -1;
     }
 
     parse_string_field(profile->username, json, "username");
-    parse_string_field(profile->username, json, "name");
+    parse_string_field(profile->name, json, "name");
     
     parse_double_field(&profile->extraversion, json, "extraversion");
     parse_double_field(&profile->agreeableness, json, "agreeableness");
@@ -167,30 +220,3 @@ int parse_user_profile(user_profile* profile, char* buf) {
     return 0;
 }
 
-void user_profile_to_string(user_profile profile, char* buf) {
-        cJSON *json = cJSON_CreateObject();
-    cJSON_AddStringToObject(json, "name", profile.username);
-    if (profile.extraversion >= 0) {
-        cJSON_AddNumberToObject(json, "extraversion", profile.extraversion);
-    }  
-    if (profile.agreeableness >= 0) {
-        cJSON_AddNumberToObject(json, "agreeableness", profile.agreeableness);
-    }
-    if (profile.conscientiousness >= 0) {
-        cJSON_AddNumberToObject(json, "conscientiousness", profile.conscientiousness);
-    }
-    if (profile.emotional_stability >= 0) {
-        cJSON_AddNumberToObject(json, "emotional_stability", profile.emotional_stability);
-    }
-    if (profile.openness_to_experience >= 0) {
-        cJSON_AddNumberToObject(json, "openness_to_experience", profile.openness_to_experience);
-    }
-    if (strcmp(profile.facts, "") != 0) {
-        cJSON_AddStringToObject(json, "facts", profile.facts);
-    }
-
-    char *content = cJSON_Print(json);
-    cJSON_Delete(json);
-    strcpy(buf, content);
-    free(content);
-}
