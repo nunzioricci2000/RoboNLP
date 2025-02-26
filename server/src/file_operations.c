@@ -27,8 +27,13 @@ int separate_path(const char *path, char username[], char field_name[]) {
             if ( temp != NULL ) {
                 found++;
                 strcpy(field_name, temp);
+                if (strtok(NULL, "/") != NULL) {
+                    return -1; //invalid path
+                } 
             }
     }
+
+
 
     //Return 1 if there was only the username, 2 if there was both username and filename, 0 if neither 
     return found;
@@ -87,6 +92,34 @@ int delete_user_file(char *username) {
     return unlink(path);
 }
 
+int delete_field_from_user_file(char* username, char* file_name) {
+    char file_content[MAX_RESPONSE_BODY_SIZE];
+    if (get_user_file(username, file_content) < 0) {
+        return -1;
+    }
+    cJSON *json = cJSON_Parse(file_content);
+    if (json == NULL) {
+        return -1;
+    }
+
+    cJSON_DeleteItemFromObject(json, file_name);
+    char *content = cJSON_Print(json);
+    cJSON_Delete(json);
+
+    char path[PATH_LEN] = "/user/";
+    strcat(path, username);
+    FILE *file = fopen(path, "w");
+    if (file == NULL) {
+        return -1;
+    }
+
+    fwrite(content, 1, strlen(content), file);
+    fclose(file);
+    free(content);
+
+    return 0;
+}
+
 int get_user_file(char *username, char *buffer) {
     char path[PATH_LEN] = "/user/";
     strcat(path, username);
@@ -105,11 +138,33 @@ int get_user_file(char *username, char *buffer) {
         return -1;
     } 
 
-    size_t length = read < MAX_RESPONSE_BODY_SIZE ? read : MAX_RESPONSE_BODY_SIZE;
+    size_t length = read < MAX_RESPONSE_BODY_SIZE ? read : MAX_RESPONSE_BODY_SIZE-1;
     buffer[length] = '\0';
 
     printf("Read %zu bytes\nContent: \n%s\n", length, buffer);
     return length;
+}
+
+int get_field_from_user_file(char* field_name,char *username, char *buffer) {
+    char file_content[MAX_RESPONSE_BODY_SIZE];
+    if (get_user_file(username, file_content) < 0) {
+        return -1;
+    }
+
+    cJSON *json = cJSON_Parse(file_content);
+    if (json == NULL) {
+        printf("Could not parse json file in memory.\n");
+        return -1;
+    }
+
+    cJSON *item = cJSON_GetObjectItem(json, field_name);
+    if (item == NULL) {
+        return -1;
+    }
+    strcpy(buffer,cJSON_Print(item));
+    cJSON_Delete(json);
+
+    return 0;
 }
 
 int put_user_file(user_profile updates_profile) {

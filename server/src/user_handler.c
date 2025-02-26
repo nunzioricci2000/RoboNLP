@@ -48,13 +48,20 @@ void user_handler(http_request *request, http_response *response) {
     switch (route) {
         case 0: //GET
             char buffer[MAX_RESPONSE_BODY_SIZE];
-            if (get_user_file(username, buffer) > 0) {
-                build_ok_response(response);
-                snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "%s" ,buffer);
-                response->body_len = strlen(response->body);
-            } else {
-                build_internal_server_error_response(response);
+            if (path_type == 1) {
+                if (get_user_file(username, buffer) < 0) {
+                    build_internal_server_error_response(response);
+                    break;
+                }
+            } else { //Path type must be 2 (it was checked in separate_path)
+                if (get_field_from_user_file(field_name, username, buffer) < 0) {
+                    build_internal_server_error_response(response);
+                    break;
+                }
             }
+            build_ok_response(response);
+            snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "%s" ,buffer);
+            response->body_len = strlen(response->body);
             break;
         case 1: //POST
             user_profile profile;
@@ -80,13 +87,34 @@ void user_handler(http_request *request, http_response *response) {
 
             break;
         case 2: //DELETE
-            if (delete_user_file(username) == 0) {
-                build_ok_response(response);
-                snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "User deleted successfully");
-            } else { 
-                handle_error("unlink");
-                build_internal_server_error_response(response);
+            char deleted[10] = "";
+            if (path_type == 1) {
+                if (delete_user_file(username) < 0) {
+                    build_internal_server_error_response(response);
+                    sprintf(response->body, "Error deleting user %s", username);
+                    response->body_len = strlen(response->body);
+                    break;
+                } else {
+                    strcpy(deleted, "user");
+                }
+            } else if (strcmp(field_name, "username") == 0 || strcmp(field_name, "name") == 0) {
+                build_bad_request_response(response);
+                strcpy(response->body, "Cannot delete username or name");
+                response->body_len = strlen(response->body);
+                break;
+            } else { //Path type must be 2 (it was checked in separate_path) and the field is deletable
+                if (delete_field_from_user_file(username, field_name) < 0) {
+                    build_internal_server_error_response(response);
+                    sprintf(response->body, "Error deleting field %s for user %s", field_name, username);
+                    response->body_len = strlen(response->body);
+                    break;
+                } else {
+                    strcpy(deleted, field_name);
+                }
             }
+            build_ok_response(response);
+            snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "%s deleted successfully", deleted);
+            response->body_len = strlen(response->body);
             break;
         case 3: //PUT
             //user_profile profile;
