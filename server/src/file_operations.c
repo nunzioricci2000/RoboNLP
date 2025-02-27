@@ -158,11 +158,16 @@ int get_field_from_user_file(char* field_name,char *username, char *buffer) {
     }
 
     cJSON *item = cJSON_GetObjectItem(json, field_name);
-    if (item == NULL) {
-        return -1;
+    if (item == NULL) { //field not found
+        snprintf(buffer, MAX_RESPONSE_BODY_SIZE, "{\n        \"%s\": null\n}", field_name);
+    } else {
+        char *content = cJSON_Print(item);
+        snprintf(buffer, MAX_RESPONSE_BODY_SIZE, "{\n        \"%s\": %s\n}", field_name, content);
+        free(content);
     }
-    strcpy(buffer,cJSON_Print(item));
+
     cJSON_Delete(json);
+
 
     return 0;
 }
