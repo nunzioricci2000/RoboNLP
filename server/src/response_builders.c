@@ -68,3 +68,19 @@ int build_method_not_allowed_response(http_response *res) {
 int build_bad_request_response(http_response *res) {
     return build_response(res, 400, "Bad Request", "<html><body><h1>400 Bad Request</h1></body></html>");
 }
+
+int build_internal_server_error_response(http_response *res) {
+    return build_response(res, 500, "Internal Server Error", "<html><body><h1>500 Internal Server Error</h1></body></html>");
+}
+
+int build_created_response(http_response *res) {
+    return build_response(res, 201, "Created", "<html><body><h1>201 Created</h1></body></html>");
+}
+
+int build_conflict_response(http_response *res) {
+    return build_response(res, 409, "Conflict", "<html><body><h1>409 Conflict</h1></body></html>");
+}
+
+int build_unauthorized_response(http_response *res) {
+    return build_response(res, 401, "Unauthorized", "<html><body><h1>401 Unauthorized</h1></body></html>");
+}

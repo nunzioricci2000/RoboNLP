@@ -30,12 +30,12 @@ void *request_handler(void *destinationSocketAddress) {
         int route = -1;
         if (request.path_len == 1 && memcmp(request.path, "/", 1) == 0) {
             route = 0;
-        } else if (request.path_len == 5 && memcmp(request.path, "/user", 5) == 0) {
+        } else if (request.path_len >= 5 && memcmp(request.path, "/user", 5) == 0) {
             route = 1;
         }
         switch (route) {
             case 0:
-                build_ok_response(&response);
+                build_unauthorized_response(&response);
                 break;
             case 1:
                 user_handler(&request, &response);
@@ -113,20 +113,20 @@ int receive_request_head(int fd, http_request *request, char *buf, size_t buf_si
         }
         buf_len += rret;
         int pret = parse_request_head(buf, buf_len, request);
-        if (pret > 0) {
+        if (pret > 0) { // request head parsed successfully
             return pret;
         }
-        if (pret == -1) {
+        if (pret == -1) { // parse error
             return -1;
         }
-        if (buf_len == buf_size) {
+        if (buf_len == buf_size) { // buffer full
             return -1;
         }
     }
 }
 
 static int extract_content_length(const http_request *request) {
-    for (size_t i = 0; i < request->num_headers; i++) {
+    for (int i = 0; i < request->num_headers; i++) {
         if (request->headers[i].name_len == 14 &&
             strncasecmp(request->headers[i].name, "Content-Length", 14) == 0) {
             char clen[32] = {0};
