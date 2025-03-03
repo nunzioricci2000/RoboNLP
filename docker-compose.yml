@@ -1,0 +1,7 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - 1025:1025
+  client:
+    build: ./client
