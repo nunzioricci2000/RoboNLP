@@ -1,4 +1,5 @@
 {
+    "python.createEnvironment.contentButton": "show",
     "files.associations": {
         "user_handler.h": "c",
         "__locale": "c",
