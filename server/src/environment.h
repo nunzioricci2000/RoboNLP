@@ -1,4 +1,4 @@
 #ifndef ENVIRONMENT
 #define ENVIRONMENT
-inline int get_port();
+int get_port();
 #endif

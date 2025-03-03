@@ -3,6 +3,7 @@
 
 #include <netinet/ip.h>
 #include "picohttpparser.h"
+#include "cJSON.h"
 
 #define MAX_HEADER_NAME_LEN 128
 #define MAX_HEADER_VALUE_LEN 4096
@@ -13,6 +14,13 @@
 #define MAX_RESPONSE_STATUS_PHRASE_LEN 128
 #define MAX_RESPONSE_BODY_SIZE 4096
 
+#define MAX_FACTS_LENGTH 2048
+#define MAX_USERNAME_LENGTH 100
+#define MAX_NAME_LENGTH 100
+#define MAX_FIELD_NAME_LENGTH 100
+#define FIELDS {"username", "name", "extraversion", "agreeableness", "conscientiousness", "emotional_stability", "openness_to_experience", "facts"}
+
+// HTTP request and response structures
 struct destination_address {
     int socketFD;
     struct sockaddr_in address;
@@ -48,5 +56,17 @@ typedef struct {
     char body[MAX_RESPONSE_BODY_SIZE];
     size_t body_len;
 } http_response;
+
+// JSON parsing structures
+typedef struct {
+    char username[MAX_USERNAME_LENGTH];
+    char name[MAX_NAME_LENGTH];
+    double extraversion;
+    double agreeableness;
+    double conscientiousness;
+    double emotional_stability;
+    double openness_to_experience;
+    char facts[MAX_FACTS_LENGTH];
+} user_profile;
 
 #endif

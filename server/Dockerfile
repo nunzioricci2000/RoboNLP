@@ -9,6 +9,8 @@ RUN chmod +x setup.sh && \
 FROM debian:12
 WORKDIR /app
 COPY --from=build /app/bin/app /app/bin/app
+RUN mkdir -p /user && \
+    chmod +rw /user
 ENV PORT=1025
 EXPOSE 1025
 CMD ["./bin/app"]
