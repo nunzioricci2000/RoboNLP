@@ -16,8 +16,6 @@ void user_handler(http_request *request, http_response *response) {
     if (path_type >= 1) {
         if (!is_valid_user(username)) {
             build_not_found_response(response);
-            strcpy(response->body, "User not found");
-            response->body_len = strlen(response->body);
             return;
         }
     }
@@ -25,8 +23,6 @@ void user_handler(http_request *request, http_response *response) {
     if (path_type == 2) {
         if (!is_valid_field_name(field_name)) {
             build_not_found_response(response);
-            strcpy(response->body, "Field not found");
-            response->body_len = strlen(response->body);
             return;
         }
     }
@@ -79,8 +75,6 @@ void user_handler(http_request *request, http_response *response) {
                         build_internal_server_error_response(response);
                     } else {
                         build_created_response(response);
-                        snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "User created successfully");
-                        response->body_len = strlen(response->body);
                     }
                 }
             }
@@ -91,30 +85,24 @@ void user_handler(http_request *request, http_response *response) {
             if (path_type == 1) {
                 if (delete_user_file(username) < 0) {
                     build_internal_server_error_response(response);
-                    sprintf(response->body, "Error deleting user %s", username);
-                    response->body_len = strlen(response->body);
                     break;
                 } else {
                     strcpy(deleted, "user");
                 }
             } else if (strcmp(field_name, "username") == 0 || strcmp(field_name, "name") == 0) {
                 build_bad_request_response(response);
-                strcpy(response->body, "Cannot delete username or name");
+                strcpy(response->body, "{\"error\": \"Cannot delete username or name\"}");
                 response->body_len = strlen(response->body);
                 break;
             } else { //Path type must be 2 (it was checked in separate_path) and the field is deletable
                 if (delete_field_from_user_file(username, field_name) < 0) {
                     build_internal_server_error_response(response);
-                    sprintf(response->body, "Error deleting field %s for user %s", field_name, username);
-                    response->body_len = strlen(response->body);
                     break;
                 } else {
                     strcpy(deleted, field_name);
                 }
             }
             build_ok_response(response);
-            snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "%s deleted successfully", deleted);
-            response->body_len = strlen(response->body);
             break;
         case 3: //PUT
             //user_profile profile;
@@ -123,15 +111,13 @@ void user_handler(http_request *request, http_response *response) {
             } else {
                 if (strcmp(profile.username, username) != 0 ) {
                     build_bad_request_response(response);
-                    strcpy(response->body, "Username in URL does not match username in body");
+                    strcpy(response->body, "{\"error\": \"Username in URL does not match username in body\"}");
                     response->body_len = strlen(response->body);
                 } else {
                     if ( put_user_file(profile) < 0) {
                         build_internal_server_error_response(response);
                     } else {
                         build_ok_response(response);
-                        snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "User updated successfully");
-                        response->body_len = strlen(response->body);
                     }
                 }
             }
