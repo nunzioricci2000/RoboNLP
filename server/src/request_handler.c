@@ -35,7 +35,7 @@ void *request_handler(void *destinationSocketAddress) {
         }
         switch (route) {
             case 0:
-                build_unauthorized_response(&response);
+                build_ok_response(&response);
                 break;
             case 1:
                 user_handler(&request, &response);
