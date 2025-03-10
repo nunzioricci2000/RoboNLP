@@ -54,33 +54,33 @@ static int build_response(http_response *res, int code, const char *phrase, cons
 }
 
 int build_ok_response(http_response *res) {
-    return build_response(res, 200, "OK", "<html><body><h1>200 OK</h1></body></html>");
+    return build_response(res, 200, "OK", "{}");
 }
 
 int build_not_found_response(http_response *res) {
-    return build_response(res, 404, "Not Found", "<html><body><h1>404 Not Found</h1></body></html>");
+    return build_response(res, 404, "Not Found", "{\"error\": \"Not Found\"}");
 }
 
 int build_method_not_allowed_response(http_response *res) {
-    return build_response(res, 405, "Method Not Allowed", "<html><body><h1>405 Method Not Allowed</h1></body></html>");
+    return build_response(res, 405, "Method Not Allowed", "{\"error\": \"Method Not Allowed\"}");
 }
 
 int build_bad_request_response(http_response *res) {
-    return build_response(res, 400, "Bad Request", "<html><body><h1>400 Bad Request</h1></body></html>");
+    return build_response(res, 400, "Bad Request", "{\"error\": \"Bad Request\"}");
 }
 
 int build_internal_server_error_response(http_response *res) {
-    return build_response(res, 500, "Internal Server Error", "<html><body><h1>500 Internal Server Error</h1></body></html>");
+    return build_response(res, 500, "Internal Server Error", "{\"error\": \"Internal Server Error\"}");
 }
 
 int build_created_response(http_response *res) {
-    return build_response(res, 201, "Created", "<html><body><h1>201 Created</h1></body></html>");
+    return build_response(res, 201, "Created", "{}");
 }
 
 int build_conflict_response(http_response *res) {
-    return build_response(res, 409, "Conflict", "<html><body><h1>409 Conflict</h1></body></html>");
+    return build_response(res, 409, "Conflict", "{\"error\": \"Conflict\"}");
 }
 
 int build_unauthorized_response(http_response *res) {
-    return build_response(res, 401, "Unauthorized", "<html><body><h1>401 Unauthorized</h1></body></html>");
+    return build_response(res, 401, "Unauthorized", "{\"error\": \"Unauthorized\"}");
 }
