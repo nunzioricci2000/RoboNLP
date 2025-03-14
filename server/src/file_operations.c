@@ -172,10 +172,10 @@ int get_field_from_user_file(char* field_name,char *username, char *buffer) {
     return 0;
 }
 
-int put_user_file(user_profile updates_profile) {
+int put_user_file(char* username, user_profile updates_profile) {
     char buf[MAX_RESPONSE_BODY_SIZE];
     user_profile profile_to_update;
-    if (get_user_file(updates_profile.username, buf) < 0) {
+    if (get_user_file(username, buf) < 0) {
         return -1;
     }
 
@@ -208,7 +208,7 @@ int put_user_file(user_profile updates_profile) {
     user_profile_to_string(profile_to_update, buf);
 
     char path[PATH_LEN] = "/user/";
-    strcat(path, updates_profile.username);
+    strcat(path, username);
     FILE *file = fopen(path, "w");
     if (file == NULL) {
         return -1;

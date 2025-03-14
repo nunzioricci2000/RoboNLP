@@ -41,6 +41,9 @@ void user_handler(http_request *request, http_response *response) {
         route = 4;
     } 
 
+
+    
+    user_profile profile;    
     switch (route) {
         case 0: //GET
             char buffer[MAX_RESPONSE_BODY_SIZE];
@@ -60,7 +63,6 @@ void user_handler(http_request *request, http_response *response) {
             response->body_len = strlen(response->body);
             break;
         case 1: //POST
-            user_profile profile;
             if (parse_user_profile(&profile, request->body) < 0) {
                 build_bad_request_response(response);
             } else{
@@ -105,22 +107,22 @@ void user_handler(http_request *request, http_response *response) {
             build_ok_response(response);
             break;
         case 3: //PUT
-            //user_profile profile;
             if (parse_user_profile(&profile, request->body) < 0) {
                 build_bad_request_response(response);
             } else {
-                if (strcmp(profile.username, username) != 0 ) {
+                if (strcmp(profile.username, "") != 0 && strcmp(profile.username, username) != 0 ) {
                     build_bad_request_response(response);
-                    strcpy(response->body, "{\"error\": \"Username in URL does not match username in body\"}");
+                    snprintf(response->body, MAX_RESPONSE_BODY_SIZE, "{\"error\": \"Username in URL does not match username in body (provided: %s, expected: %s)\"}", profile.username, username);
                     response->body_len = strlen(response->body);
                 } else {
-                    if ( put_user_file(profile) < 0) {
+                    if ( put_user_file(username, profile) < 0) {
                         build_internal_server_error_response(response);
                     } else {
                         build_ok_response(response);
                     }
                 }
             }
+            break;
         case 4: //User not found
             build_not_found_response(response);
             break;

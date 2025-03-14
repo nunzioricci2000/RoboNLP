@@ -8,7 +8,7 @@ int get_field_from_user_file(char* field_name,char *username, char *buffer);
 int is_valid_user(char *username);
 int delete_user_file(char *username);
 int delete_field_from_user_file(char* username, char* file_name);
-int put_user_file(user_profile profile);
+int put_user_file(char *username, user_profile profile);
 int post_user_file(user_profile profile);
 int is_valid_field_name(char *filename);
 int parse_user_profile(user_profile* profile, char* buf);
