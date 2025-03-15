@@ -12,4 +12,5 @@ int put_user_file(char *username, user_profile profile);
 int post_user_file(user_profile profile);
 int is_valid_field_name(char *filename);
 int parse_user_profile(user_profile* profile, char* buf);
+int post_user_facts(char* username, char* fact);
 #endif
