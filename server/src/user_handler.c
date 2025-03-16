@@ -31,14 +31,17 @@ void user_handler(http_request *request, http_response *response) {
 
     if (strncmp(request->method, "GET", 3) == 0 && path_type > 0) {
         route = 0;
-    } else if (strncmp(request->method, "POST", 4) == 0) {
+    } else if (strncmp(request->method, "POST", 4) == 0 && path_type == 0) {
         route = 1;
     } else if (strncmp(request->method, "DELETE", 6) == 0 && path_type > 0) {
         route = 2;
     } else if (strncmp(request->method, "PUT", 3) == 0 && path_type > 0) {
         route = 3;
-    } else if (path_type == 0) {
+    } else if (strncmp(request->method, "POST", 4) == 0 && path_type == 2 && strcmp(field_name, "facts") == 0) {
         route = 4;
+    }
+    else if (path_type == 0) {
+        route = 5;
     } 
 
 
@@ -63,24 +66,25 @@ void user_handler(http_request *request, http_response *response) {
             response->body_len = strlen(response->body);
             break;
         case 1: //POST
-            if (parse_user_profile(&profile, request->body) < 0) {
-                build_bad_request_response(response);
-            } else{
-                if (strcmp(profile.username, "") == 0 || strcmp(profile.name, "") == 0 ) {
+            if (path_type == 0) {
+                if (parse_user_profile(&profile, request->body) < 0) {
                     build_bad_request_response(response);
-                    printf("username (%s) or name (%s) were not found\n", profile.username, profile.name);
-                } else if (is_valid_user(profile.username)) {
-                    build_conflict_response(response);
-                } else {
-                    // TODO unparse user_profile and save it to a file named <username>
-                    if ( post_user_file(profile) < 0) {
-                        build_internal_server_error_response(response);
+                } else{
+                    if (strcmp(profile.username, "") == 0 || strcmp(profile.name, "") == 0 ) {
+                        build_bad_request_response(response);
+                        printf("username (%s) or name (%s) were not found\n", profile.username, profile.name);
+                    } else if (is_valid_user(profile.username)) {
+                        build_conflict_response(response);
                     } else {
-                        build_created_response(response);
+                        // TODO unparse user_profile and save it to a file named <username>
+                        if ( post_user_file(profile) < 0) {
+                            build_internal_server_error_response(response);
+                        } else {
+                            build_created_response(response);
+                        }
                     }
                 }
             }
-
             break;
         case 2: //DELETE
             char deleted[10] = "";
@@ -123,7 +127,14 @@ void user_handler(http_request *request, http_response *response) {
                 }
             }
             break;
-        case 4: //User not found
+        case 4: //POST facts
+            if (post_user_facts(username, request->body) < 0) {
+                build_internal_server_error_response(response);
+            } else {
+                build_ok_response(response);
+            }
+            break;
+        case 5: //User not found
             build_not_found_response(response);
             break;
         default:
