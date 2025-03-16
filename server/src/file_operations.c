@@ -307,7 +307,10 @@ int post_user_facts(char* username, char* buffer) {
     if (parse_user_profile(&profile, buf) < 0) {
         return -1;
     }
-    strcat(profile.facts, "\n");
+    
+    if (strcmp(profile.facts, "") != 0) {
+        strcat(profile.facts, "\n");
+    }
     strcat(profile.facts, fact);
 
     return overwrite_user_file(profile, username);
