@@ -8,7 +8,7 @@ class UserProfile:
                  conscientiousness: Optional[float] = None,
                  emotional_stability: Optional[float] = None,
                  openness_to_experience: Optional[float] = None,
-                 facts: Optional[List[str]] = None):
+                 facts: Optional[List[str]] = []):
         self.name = name
         self.extraversion = extraversion
         self.agreeableness = agreeableness
