@@ -84,6 +84,23 @@ strcpy(buf, content);
 free(content);
 }
 
+int overwrite_user_file(user_profile profile, char* username) {
+    char path[PATH_LEN] = "/user/";
+    strcat(path, username);
+    
+    char content[MAX_RESPONSE_BODY_SIZE];
+    user_profile_to_string(profile, content);
+
+    FILE *file = fopen(path, "w");
+    if (file == NULL) {
+        return -1;
+    }
+
+    fwrite(content, 1, sizeof(content), file);
+    fclose(file);
+    return 0;
+}
+
 int delete_user_file(char *username) {
     char path[PATH_LEN] = "/user/";
     strcat(path, username);
@@ -172,10 +189,10 @@ int get_field_from_user_file(char* field_name,char *username, char *buffer) {
     return 0;
 }
 
-int put_user_file(user_profile updates_profile) {
+int put_user_file(char* username, user_profile updates_profile) {
     char buf[MAX_RESPONSE_BODY_SIZE];
     user_profile profile_to_update;
-    if (get_user_file(updates_profile.username, buf) < 0) {
+    if (get_user_file(username, buf) < 0) {
         return -1;
     }
 
@@ -205,18 +222,7 @@ int put_user_file(user_profile updates_profile) {
         strcat(profile_to_update.facts, updates_profile.facts);
     }
 
-    user_profile_to_string(profile_to_update, buf);
-
-    char path[PATH_LEN] = "/user/";
-    strcat(path, updates_profile.username);
-    FILE *file = fopen(path, "w");
-    if (file == NULL) {
-        return -1;
-    }
-
-    fwrite(buf, 1, sizeof(buf), file);
-    fclose(file);
-    return 0;
+    return overwrite_user_file(profile_to_update, username);
 }
 
 int post_user_file(user_profile profile) {
@@ -278,5 +284,35 @@ int parse_user_profile(user_profile* profile, char* buf) {
     parse_string_field(profile->facts, json, "facts");
     
     return 0;
+}
+
+int post_user_facts(char* username, char* buffer) {
+    cJSON *json = cJSON_Parse(buffer);
+    if (json == NULL) {
+        return -1;
+    }
+    
+    char *fact = cJSON_GetStringValue(cJSON_GetObjectItem(json, "fact"));
+
+    if (fact == NULL) {
+        return -1;
+    }
+
+    char buf[MAX_RESPONSE_BODY_SIZE];
+    if (get_user_file(username, buf) < 0) {
+        return -1;
+    }
+
+    user_profile profile;
+    if (parse_user_profile(&profile, buf) < 0) {
+        return -1;
+    }
+    
+    if (strcmp(profile.facts, "") != 0) {
+        strcat(profile.facts, "\n");
+    }
+    strcat(profile.facts, fact);
+
+    return overwrite_user_file(profile, username);
 }
 
