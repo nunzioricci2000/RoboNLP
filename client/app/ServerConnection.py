@@ -1,6 +1,7 @@
 from typing import List, Optional
 import requests, json
 from ServerResponse import ServerResponse
+from UserProfile import UserProfile
 
 class ServerConnection:
     instance = None
@@ -58,24 +59,28 @@ class ServerConnection:
             ret = ServerResponse.error("Error. DELETE " + field + " operation failed for user " + username)
         return ret
     
-    def post_user_profile(self, profile):
-        response = requests.post(self.server_url + "user/", json=profile)
+    def post_user_profile(self, username: str,  profile: UserProfile):
+        json = profile.to_json()
+        json["username"] = username
+        response = requests.post(self.server_url + "user/", json=json)
         if response.status_code == 200:
             ret = ServerResponse.success("User posted succesfully")
         else:
             ret = ServerResponse.error("Error. POST operation failed.")
         return ret
     
-    def put_user_profile(self,username, to_update):
-        response = requests.put(self.server_url + "user/" + username, json=to_update)
+    def put_user_profile(self,username, to_update: UserProfile):
+        json = to_update.to_json()
+        response = requests.put(self.server_url + "user/" + username, json=json)
         if response.status_code == 200:
             ret = ServerResponse.success("User updated succesfully")
         else:
             ret = ServerResponse.error("Error. PUT operation failed")
         return ret
     
-    def post_user_profile_facts(self, username, facts):
-        response = requests.post(self.server_url + "user/" + username + "/facts", json=facts)
+    def post_user_profile_facts(self, username, facts: str):
+        json = { "fact": facts }
+        response = requests.post(self.server_url + "user/" + username + "/facts", json=json)
         if response.status_code == 200:
             ret = ServerResponse.success("User fact posted successfully")
         else:
@@ -86,17 +91,17 @@ if __name__ == "__main__":
     # Test
     server = ServerConnection()
     #assert server.is_connected, "Could not connect to server"
-    profile = {"username": "test", "name": "test", "extraversion": 3}
-    post_response = server.post_user_profile(profile)
+    profile = UserProfile(name="test", extraversion=3)
+    post_response = server.post_user_profile(username="test", profile=profile)
 
     print("GET: " + server.get_user_profile(username = "test").to_string())
     print("GET field: " + server.get_user_profile_field(username = "test", field = "extraversion").to_string())
-    print("PUT: " + server.put_user_profile(username = "test", to_update = {"agreeableness": 5}).to_string())
+    print("PUT: " + server.put_user_profile(username = "test", to_update = UserProfile(agreeableness=5)).to_string())
     print("GET: " + server.get_user_profile(username = "test").user_profile.to_string())
     print("DELETE field: " + server.delete_user_profile_field(username = "test", field = "agreeableness").to_string())
     print("GET: " + server.get_user_profile(username = "test").to_string())
-    print("POST facts: " + server.post_user_profile_facts(username = "test", facts = {"fact": "first fact"}).to_string())
-    print("POST facts: " + server.post_user_profile_facts(username = "test", facts = {"fact": "second fact\nthird fact"}).to_string())
+    print("POST facts: " + server.post_user_profile_facts(username = "test", facts = "first fact").to_string())
+    print("POST facts: " + server.post_user_profile_facts(username = "test", facts = "second fact\nthird fact").to_string())
     print("GET: " + server.get_user_profile(username = "test").to_string())
     print("DELETE: " + server.delete_user_profile(username = "test").to_string())
     print("GET: " + server.get_user_profile(username = "test").to_string())

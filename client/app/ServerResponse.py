@@ -49,10 +49,13 @@ class ServerResponse:
         return cls(error_message=message)
     
     def to_string(self):
+        ret = ''
         if hasattr(self, 'user_profile'):
-            return self.user_profile.to_string()
+            ret = ret + self.user_profile.to_string() + "\n"
         if hasattr(self, 'success_message'):
-            return "Success message: " + self.success_message
+            ret = ret + "Success message: " + self.success_message + "\n"
         if hasattr(self, 'error_message'):
-            return "Error message: " + self.error_message
-        return "Empty ServerResponse object"
+            ret = ret + "Error message: " + self.error_message + "\n"
+        if ret == '':
+            return "Empty ServerResponse object"
+        return ret

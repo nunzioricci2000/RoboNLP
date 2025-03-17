@@ -21,3 +21,11 @@ class UserProfile:
         attributes = vars(self)
         ret = ', '.join(f"{key}: {value}" for key, value in attributes.items() if value is not None)
         return ret
+    
+    def to_json(self):
+        json = {}
+        attributes = vars(self)
+        for key, value in attributes.items():
+            if value is not None:
+                json[key] = value
+        return json
