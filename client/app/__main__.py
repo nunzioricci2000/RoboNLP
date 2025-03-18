@@ -1,10 +1,13 @@
 from multiprocessing.pool import AsyncResult
 from furhat_remote_api import FurhatRemoteAPI
+from ServerConnection import ServerConnection
+from Furhat import Furhat
 
-furhat = FurhatRemoteAPI("host.docker.internal")
-voices = furhat.get_voices()
-furhat.set_voice(name='Bianca')
-furhat.say(text="Ciao a tutti!")
+
+furhat = Furhat()
+furhat.set_up()
+
+furhat.login()
 
 while True:
     thread: AsyncResult = furhat.furhat_listen_get(async_req=True, language="it-IT")
