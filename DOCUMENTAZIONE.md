@@ -8,26 +8,37 @@ Il robot dovrà:
 ## Scelte implementative
 Le responsabilità generali di server è client sono le seguenti:
 - il client, scritto in Python, gestisce l'interazione con il robot Furhat e l'integrazione di OpenAI per l'interpretazione e l'elaborazione del linguaggio naturale;
-- il server gestisce e conserva la memoria sulle informazioni degli utenti (personalità ed alcuni argomenti di conversazione notevoli).
+- il server, scritto in C,  gestisce e conserva la memoria sulle informazioni degli utenti (personalità ed alcuni argomenti di conversazione notevoli).
 
 Client e server interagiscono fra di loro tramite protocollo HTTP scambiandosi oggetto JSON.
 
 #### User Profile
-È utile introdurre il concetto generale di User Profile, astraendo i dettagli implementativi che si differenziano fra client e server.
+È utile introdurre il concetto generale di User Profile, astraendo i dettagli implementativi, che si differenziano fra client e server.
+
+L'User Profile è l'oggetto che rappresenta i dati utente, che comprendono: 
+- un'**username**, che rappresenta l'identificativo univoco per ciascun utente,
+- i risultati del test della personalità TIPI, costituiti da 5 valori numerici compresi tra 1 e 7, a rappresentanza dei seguenti tratti della personalità,
+  - **extraversion** (estroversione),
+  - **agreeableness** (piacevolezza),
+  - **conscientiousness** (coscienziosità),
+  - **emotional stability** (stabilità emotiva),
+  - **openness to experiences** (apertura alle esperienze);
+- una collezione di **facts** (aneddoti) per fornire ad OpenAI un contesto sulle conversazioni passate.
+
+#### Richieste e risposte Client-Server
+Come già menzionato, server e client comunicano esclusivamente tramite protocollo HTTP. In aggiunta, il body sia delle richieste (da parte del client) sia delle risposte (da parte del server) HTTP è sempre un oggetto JSON. L’oggetto JSON potrebbe contenere:
+- nulla ( {} ),
+- uno o più campi dell’User File,
+- un messaggio di errore, rappresentato da una stringa denominata error (solo nelle risposte server),
+- un singolo fact denominato fact da aggiungere allo user file (solo nelle richieste client).
 
 ### Server
-Il server è in grado di gestire più richieste, generando un thread per ogni client che richiede ed ottiene una connessione 
+Il server è in grado di gestire più richieste, generando un thread per ogni client che richiede ed ottiene una connessione (la creazione dei thread avviene in `main.c`).
 
-Come già menzionato, server e client comunicano esclusivamente tramite protocollo HTTP. In aggiunta, il body sia delle richieste (da parte del client) sia delle risposte (da parte del server) http è sempre un oggetto json. L’oggetto json potrebbe contenere:
-- nulla ({})
-- Uno o più campi dell’user file (LINKA la definizione dell’ user file)
-- Un messaggio di errore, rappresentato da una stringa denominata error (solo nelle risposte server)
-- Un messaggio di stato, rappresentato da una stringa denominata NON MI RICORDO (solo nelle risposte server)
-- Un singolo fact denominato fact da aggiungere allo user file (solo nelle richieste client)
+In seguito, il server analizza l'URL della richiesta per determinarne l'endpoint (ciò avviene in `request_handler.c`).
 
-[Gestione degli end point?]
-[Gestione dei file?]
-[Costruzione delle risposte?]
+- Se l'URL è root ("/"), il server invia una risposta HTTP OK (codice 200) in modo da fornire al client un sistema per verificare che la connessione sia stata correttamente stabilita.
+- Se l'URL è "/user" o "/user/\<path>" si sta tentando di accedere ad un user file. Si dovranno quindi verificare la validità del path ed il metodo della richiesta HTTP per determinare se l'operazione richiesta è valida ed eventualmente eseguirla (queste valutazioni sono effettuate in `user_handler.c` ed esecuzioni delle richieste, quindi le operazioni di lettura e scrittura sui file utente, avvengono in `file_operations.c`)
 
 - [Compilazione gestita con un makefile]
 - [Risoluzione delle dipendenza gestita dal file setup.sh]
