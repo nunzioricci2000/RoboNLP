@@ -2,23 +2,25 @@ from multiprocessing.pool import AsyncResult
 from furhat_remote_api import FurhatRemoteAPI
 from ServerConnection import ServerConnection
 from UserProfile import UserProfile
+from Chat import RobotChat
+
 
 CONFIRMATION_WORDS = ["si", "sì", "esatto", "confermo", "conferma", "corretto"]
 NUMBERS = ["uno", "due", "tre", "quattro", "cinque", "sei", "sette", "1", "2", "3", "4", "5", "6", "7"]
 
 class Furhat:
-    furhat: FurhatRemoteAPI = None
+    api: FurhatRemoteAPI = None
 
     def set_up(self, host: str = "host.docker.internal"):
-        self.furhat = FurhatRemoteAPI(host)
-        self.furhat.set_voice(name='Bianca')
-        self.furhat.attend(user="CLOSEST")
+        self.api = FurhatRemoteAPI(host)
+        self.api.set_voice(name='Bianca')
+        self.api.attend(user="CLOSEST")
 
     def speak(self, text):
-        self.furhat.say(text = text, lipsync=True, blocking=True)
+        self.api.say(text = text, lipsync=True, blocking=True)
 
     def listen(self):
-        thread: AsyncResult = self.furhat.furhat_listen_get(async_req=True, language="it-IT")
+        thread: AsyncResult = self.api.furhat_listen_get(async_req=True, language="it-IT")
         thread.wait()
         return thread.get().message.lower()
     
@@ -99,18 +101,26 @@ class Furhat:
 
         server = ServerConnection()
 
-        serverResponse = server.get_user_profile(username = username)
-        if hasattr(serverResponse, "error_message"):
+        server_response = server.get_user_profile(username = username)
+        if hasattr(server_response, "error_message"):
             new_user = self.build_new_user(username = username)
             server.post_user_profile(username=username, profile=new_user)
 
             self.speak("Piacere di conoscerti " + new_user.name + "!")
-            return new_user
-        elif hasattr(serverResponse, "user_profile"):
-            returning_user = serverResponse.user_profile
+            self.user = new_user
+        elif hasattr(server_response, "user_profile"):
+            returning_user = server_response.user_profile
             self.speak("Bentornato " + returning_user.name + "!")
-            return returning_user
-
+            self.user = returning_user
+        
+    def chat(self):
+        robot_chat = RobotChat(user_info=self.user)
+        while(True):
+            user_speech = self.listen()
+            robot_answer = robot_chat.chat(message=user_speech)
+            self.speak(text=robot_answer)
+                        
+        
 
 
 
