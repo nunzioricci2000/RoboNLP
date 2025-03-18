@@ -18,17 +18,19 @@ class Furhat:
 
     def speak(self, text):
         self.api.say(text = text, lipsync=True, blocking=True)
+        print("Robot: " + text)
 
     def listen(self):
         thread: AsyncResult = self.api.furhat_listen_get(async_req=True, language="it-IT")
         thread.wait()
-        return thread.get().message.lower()
+        ret = thread.get().message.lower()
+        print("User: " + ret)
+        return ret
     
     def get_quiz_answer(self, question):
         self.speak(text = question)
         while True:
             answer = self.listen()
-            print(answer)
             if answer in NUMBERS:
                 break
 
@@ -80,7 +82,6 @@ class Furhat:
         while True:
             username = self.listen()
 
-            print(username)
             if username == "":
                 wait_cycle = wait_cycle + 1
                 if wait_cycle >= 3:
@@ -92,7 +93,6 @@ class Furhat:
 
             heard = self.listen()
 
-            print(heard)
             if heard in CONFIRMATION_WORDS:
                 break
             self.speak(text="Ripeti il tuo username, per favore.")
