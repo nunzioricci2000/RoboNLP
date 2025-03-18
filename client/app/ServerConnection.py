@@ -6,7 +6,7 @@ from UserProfile import UserProfile
 class ServerConnection:
     instance = None
     is_connected = False
-    server_url = "http://localhost:1025/"
+    server_url = "http://server:1025/"
 
     def __new__(self): # Singleton pattern
         if ServerConnection.instance is None:

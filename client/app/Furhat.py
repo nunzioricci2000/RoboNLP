@@ -3,14 +3,14 @@ from furhat_remote_api import FurhatRemoteAPI
 from ServerConnection import ServerConnection
 from UserProfile import UserProfile
 
-CONFIRMATION_WORDS = ("si", "sì", "esatto", "confermo", "conferma", "corretto")
-NUMBERS = ("uno", "due", "tre", "quattro", "cinque", "sei", "sette", 1, 2, 3, 4, 5, 6, 7)
+CONFIRMATION_WORDS = ["si", "sì", "esatto", "confermo", "conferma", "corretto"]
+NUMBERS = ["uno", "due", "tre", "quattro", "cinque", "sei", "sette", "1", "2", "3", "4", "5", "6", "7"]
 
 class Furhat:
     furhat: FurhatRemoteAPI = None
 
-    def set_up(self):
-        self.furhat = FurhatRemoteAPI("host.docker.internal")
+    def set_up(self, host: str = "host.docker.internal"):
+        self.furhat = FurhatRemoteAPI(host)
         self.furhat.set_voice(name='Bianca')
         self.furhat.attend(user="CLOSEST")
 
@@ -26,22 +26,24 @@ class Furhat:
         self.speak(text = question)
         while True:
             answer = self.listen()
+            print(answer)
             if answer in NUMBERS:
                 break
+
             self.speak("Non ho capito. Per favore rispondi con un numero intero da uno a sette.")
-        if answer in (1, "uno"):
+        if answer in ("1", "uno"):
             return 1
-        if answer in (2, "due"):
+        if answer in ("2", "due"):
             return 2
-        if answer in (3, "tre"):
+        if answer in ("3", "tre"):
             return 3
-        if answer in (4, "quattro"):
+        if answer in ("4", "quattro"):
             return 4
-        if answer in (5, "cinque"):
+        if answer in ("5", "cinque"):
             return 5
-        if answer in (6, "sei"):
+        if answer in ("6", "sei"):
             return 6
-        if answer in (7, "sette"):
+        if answer in ("7", "sette"):
             return 7
     
     def build_new_user(self, username):
@@ -69,7 +71,7 @@ class Furhat:
 
 
 
-    def login(self, server: ServerConnection):
+    def login(self):
         self.speak(text="Ciao! Sono Robo NLP. Qual è il tuo username?")
         
         wait_cycle = 0
@@ -82,6 +84,7 @@ class Furhat:
                 if wait_cycle >= 3:
                     self.speak(text = "Non ho sentito. Qual è il tuo username?")
                     wait_cycle = 0
+
                 continue
             self.speak(text = username + ". Confermi questo username?")
 
@@ -91,7 +94,10 @@ class Furhat:
             if heard in CONFIRMATION_WORDS:
                 break
             self.speak(text="Ripeti il tuo username, per favore.")
+
         self.speak(text="Ciao, " + username + "!")
+
+        server = ServerConnection()
 
         serverResponse = server.get_user_profile(username = username)
         if hasattr(serverResponse, "error_message"):
@@ -110,12 +116,10 @@ class Furhat:
 
 if __name__ == "__main__":
     furhat = Furhat()
-    server = ServerConnection()
+    furhat.set_up(host="localhost")
 
-    furhat.set_up()
-    furhat.login(server=server)
+    furhat.login()
 
     while True:
-        thread: AsyncResult = furhat.furhat_listen_get(async_req=True, language="it-IT")
-        thread.wait()
-        print(thread.get())
+        spech = furhat.listen()
+        print(print.speech)
