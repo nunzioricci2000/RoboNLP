@@ -96,7 +96,7 @@ int overwrite_user_file(user_profile profile, char* username) {
         return -1;
     }
 
-    fwrite(content, 1, sizeof(content), file);
+    fwrite(content, 1, strlen(content), file);
     fclose(file);
     return 0;
 }
@@ -238,7 +238,7 @@ int post_user_file(user_profile profile) {
     }
 
 
-    fwrite(content, 1, sizeof(content), file);
+    fwrite(content, 1, strlen(content), file);
     fclose(file);
     return 0;
 }
