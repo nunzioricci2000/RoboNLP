@@ -10,8 +10,7 @@ class Furhat:
     furhat: FurhatRemoteAPI = None
 
     def set_up(self):
-        #self.furhat = FurhatRemoteAPI("host.docker.internal")
-        self.furhat = FurhatRemoteAPI("localhost")
+        self.furhat = FurhatRemoteAPI("host.docker.internal")
         self.furhat.set_voice(name='Bianca')
         self.furhat.attend(user="CLOSEST")
 
