@@ -5,3 +5,7 @@ services:
       - 1025:1025
   client:
     build: ./client
+    environment:
+      - OPENAPI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+    env_file:
+      - .env
