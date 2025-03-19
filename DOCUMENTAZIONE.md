@@ -46,54 +46,54 @@ La comunicazione tra client e server avviene tramite protocollo HTTP con scambio
 
 ### 3.1 Struttura del Server
 
-Il server è organizzato nelle seguenti directory:
+Il server è organizzato nei seguenti file e directory:
 
 - `src/`: Contiene il codice sorgente C
 - `libs/`: Librerie esterne necessarie
 - `external/`: Repository esterni completi
 - `Makefile`: Gestisce la compilazione del server
-- setup.sh: Script per l'installazione delle dipendenze
+- `setup.sh`: Script per l'installazione delle dipendenze
 - `Dockerfile`: Configurazione per la containerizzazione
 
 ### 3.2 Dipendenze Esterne
 
 Il server utilizza due librerie esterne principali:
 
-- **cJSON**: Per interpretare e costruire oggetti JSON
-- **picohttpparser**: Per analizzare richieste HTTP e costruire risposte
+- **cJSON**, per interpretare e costruire oggetti JSON,
+- **picohttpparser**, per analizzare richieste HTTP.
 
 ### 3.3 Gestione delle Connessioni
 
 Le connessioni sono implementate tramite socket Linux in C:
 
-- L'inizializzazione della socket server è definita in `server.c`
-- L'accettazione delle richieste è gestita in `main.c`
-- La ricezione delle richieste e l'invio delle risposte avviene in `request_handler.c`
+- l'inizializzazione della socket server è definita in `server.c`,
+- l'accettazione delle richieste è gestita in `main.c`,
+- la ricezione delle richieste e l'invio delle risposte avviene in `request_handler.c`.
 
 Il server è multi-thread, consentendo la gestione simultanea di più connessioni:
 
-- I thread vengono creati in `main.c`
-- La loro gestione avviene in `request_handler.c`
+- i thread vengono creati in `main.c`,
+- la loro gestione avviene in `request_handler.c`.
 
 ### 3.4 Gestione dei Salvataggi
 
 Le operazioni su file sono centralizzate in `file_operations.c`, che si occupa di:
 
-- Salvare i profili utente in formato JSON
-- Recuperare i profili esistenti
-- Modificare profili esistenti
-- Eliminare profili
+- salvare i profili utente in formato JSON,
+- recuperare i profili esistenti,
+- modificare profili esistenti,
+- eliminare profili.
 
 ### 3.5 API Endpoints
 
 Il server espone i seguenti endpoint HTTP:
 
-- `/user` (POST): Crea un nuovo utente
-- `/user/<username>` (GET): Ottiene il profilo di un utente esistente
-- `/user/<username>` (DELETE): Elimina un utente esistente
-- `/user/<username>` (PUT): Aggiorna il profilo di un utente esistente
-- `/user/<username>/<fieldname>` (GET): Ottiene un campo specifico del profilo utente
-- `/user/<username>/facts` (POST): Aggiunge dati al campo facts
+- `/user` (POST): Crea un nuovo utente;
+- `/user/<username>` (GET): Ottiene il profilo di un utente esistente;
+- `/user/<username>` (DELETE): Elimina un utente esistente;
+- `/user/<username>` (PUT): Aggiorna il profilo di un utente esistente;
+- `/user/<username>/<fieldname>` (GET): Ottiene un campo specifico del profilo utente;
+- `/user/<username>/facts` (POST): Aggiunge dati al campo facts.
 
 ## 4. Implementazione del Client
 
@@ -101,23 +101,23 @@ Il server espone i seguenti endpoint HTTP:
 
 Il client è organizzato secondo un paradigma ad oggetti con le seguenti responsabilità:
 
-- **Gestione dell'interfaccia**: Affidata alla classe `FurhatConnection`
-- **Comunicazione con il server**: Gestita dalla classe `ServerConnection`
-- **Integrazione con OpenAI**: Per l'elaborazione del linguaggio naturale
+- **Gestione dell'interfaccia**: Affidata alla classe `FurhatConnection`;
+- **Comunicazione con il server**: Gestita dalla classe `ServerConnection`;
+- **Integrazione con OpenAI**: Per l'elaborazione del linguaggio naturale, gestita dal modulo `ai_chat`.
 
 ### 4.2 ServerConnection
 
 La classe `ServerConnection` implementa il pattern Singleton e si occupa di:
 
-- Gestire le richieste HTTP verso il server
-- Convertire dati in formato JSON
-- Gestire username e dati utente
+- gestire le richieste HTTP verso il server,
+- convertire dati in formato JSON,
+- gestire username e dati utente.
 
 Restituisce oggetti `ServerResponse` che possono contenere:
 
-- Un profilo utente
-- Un messaggio di errore
-- Un messaggio di conferma
+- un profilo utente,
+- un messaggio di errore,
+- un messaggio di conferma.
 
 ### 4.3 UserProfile
 
@@ -125,21 +125,21 @@ La classe `UserProfile` implementa il pattern Factory per fornire costruttori sp
 
 Contiene i seguenti campi:
 
-- `name`: Nome utente
-- `extraversion`: Punteggio di estroversione
-- `agreeableness`: Punteggio di gradevolezza
-- `conscientiousness`: Punteggio di coscienziosità
-- `emotional_stability`: Punteggio di stabilità emotiva
-- `openness_to_experience`: Punteggio di apertura all'esperienza
-- `facts`: Lista di argomenti di conversazione rilevanti
+- `name`: Nome utente;
+- `extraversion`: Punteggio di estroversione;
+- `agreeableness`: Punteggio di gradevolezza;
+- `conscientiousness`: Punteggio di coscienziosità;
+- `emotional_stability`: Punteggio di stabilità emotiva;
+- `openness_to_experience`: Punteggio di apertura all'esperienza;
+- `facts`: Lista di argomenti di conversazione rilevanti.
 
 ### 4.4 FurhatConnection
 
 La classe `FurhatConnection` gestisce l'interazione con il robot Furhat, occupandosi di:
 
-- Inizializzare la connessione con il robot
-- Gestire espressioni facciali e movimenti
-- Controllare il dialogo e la sintesi vocale
+- inizializzare la connessione con il robot,
+- gestire espressioni facciali e movimenti,
+- controllare il dialogo e la sintesi vocale.
 
 ## 5. Installazione e Configurazione
 
@@ -149,6 +149,7 @@ La classe `FurhatConnection` gestisce l'interazione con il robot Furhat, occupan
 - Git
 - Connessione a internet per scaricare le dipendenze
 - Robot Furhat o simulatore Furhat SDK (versione 2.8.0 o successiva)
+- Una API KEY per il servizio AI che si intende utilizzare (inserirlo nel file `.env`)
 
 ### 5.2 Installazione del Server
 
@@ -171,7 +172,7 @@ La classe `FurhatConnection` gestisce l'interazione con il robot Furhat, occupan
    - Aggiorna i submodule Git
    - Copia i file necessari dalle dipendenze esterne nella cartella `libs`
 
-### 5.3 Installazione del Client (Ambiente di sviluppo)
+### 5.3 Set-up del Client per ambiende di sviluppo (opzionale)
 
 Per configurare l'ambiente di sviluppo del client:
 
@@ -191,6 +192,16 @@ Il client richiede le seguenti variabili d'ambiente nel file .env:
 - `SERVER_PORT`: Porta del server (default: 1025)
 - `FURHAT_HOST`: Indirizzo del robot Furhat (default: 'localhost')
 - `FURHAT_VOICE`: Voce da utilizzare per il robot (opzionale)
+
+#### 5.4.1 Scelta e configurazione del modello di linguaggio
+
+Gemini ha dimostrato prestazioni superiori tra le opzioni disponibili ed è per questo motivo che è stato impostato come scelta predefinita. Per utilizzare un modello AI diverso assicurarsi che fornisca API compatibili con OpenAI.
+
+In ogni caso sarà necessario creare un file `.env` nella directory del client e aggiungere l'`OPENAI_API_KEY`.
+
+**Importante**: L'applicazione non funzionerà senza una chiave API valida
+
+La configurazione della chiave API è obbligatoria indipendentemente dal modello di linguaggio scelto (Gemini o modelli alternativi)
 
 ## 6. Avvio dell'Applicazione
 
