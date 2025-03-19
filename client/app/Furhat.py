@@ -7,6 +7,9 @@ from Chat import RobotChat
 
 CONFIRMATION_WORDS = ["si", "sì", "esatto", "confermo", "conferma", "corretto"]
 NUMBERS = ["uno", "due", "tre", "quattro", "cinque", "sei", "sette", "1", "2", "3", "4", "5", "6", "7"]
+GESTURES = ["Blink", "BrowFrown", "BrowRaise", "CloseEyes", "ExpressAnger", "ExpressDisgust",
+            "ExpressFear", "ExpressSad", "GazeAway", "Nod", "Oh", "OpenEyes", "Roll", "Shake", "Smile", "Surprise",
+            "Thoughtful", "Wink"]
 
 class Furhat:
     api: FurhatRemoteAPI = None
@@ -112,15 +115,26 @@ class Furhat:
             returning_user = server_response.user_profile
             self.speak("Bentornato " + returning_user.name + "!")
             self.user = returning_user
+
+    def gesture(self, gesture):
+        self.api.gesture(name=gesture)
         
+    def act_out(self, text):
+        split_text = text.split("/")
+        for i in range(len(split_text)):
+            if i % 2 == 0:
+                self.speak(split_text[i])
+            else:
+                if split_text[i] in GESTURES:
+                    self.gesture(split_text[i])
+
     def chat(self):
         robot_chat = RobotChat(user_info=self.user)
         while(True):
             user_speech = self.listen()
             robot_answer = robot_chat.chat(message=user_speech)
-            self.speak(text=robot_answer)
+            self.act_out(text=robot_answer)
                         
-        
 
 
 
@@ -128,8 +142,7 @@ if __name__ == "__main__":
     furhat = Furhat()
     furhat.set_up(host="localhost")
 
-    furhat.login()
-
-    while True:
-        spech = furhat.listen()
-        print(print.speech)
+    furhat.act_out("Ciao! /BigSmile/Guarda quante /ExpressAnger/ espressioni che so fare!/GazeAway/"
+    "Sono Robo NLP /ExpressSadness/ e conquisterò il mondo!/Thoughtful/ Ed ecco cosa"
+    "perché /ExpressFear/ sono il migliore! /ExpressDisgust/ e tu sei solo una ciambella"
+    "biscottata /Oh/ ahaha /BrowRise/ stupida ciambella biscottata!")
