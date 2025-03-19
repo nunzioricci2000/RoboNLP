@@ -4,5 +4,6 @@ from .env_vars import (
     openai_model,
     server_ip,
     server_port,
-    furhat_host
+    furhat_host,
+    furhat_voice,
 )
