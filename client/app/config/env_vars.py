@@ -13,3 +13,5 @@ server_ip = getenv("SERVER_IP", "server")
 server_port = getenv("SERVER_PORT", "1025")
 
 furhat_host = getenv("FURHAT_HOST", "host.docker.internal")
+
+furhat_voice = getenv("FURHAT_VOICE", "Bianca")
