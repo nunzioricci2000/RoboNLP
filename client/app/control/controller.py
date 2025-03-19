@@ -73,18 +73,17 @@ class Controller:
         server = ServerConnection()
 
         server_response = server.get_user_profile(username = username)
-        if hasattr(server_response, "error_message"):
+        if server_response.error_message is not None:
             new_user = self.build_new_user(username = username)
             server.post_user_profile(username=username, profile=new_user)
-
             self.robot.speak("Piacere di conoscerti " + new_user.name + "!")
             self.user = new_user
-        elif hasattr(server_response, "user_profile"):
+        elif server_response.user_profile is not None:
             returning_user = server_response.user_profile
             self.robot.speak("Bentornato " + returning_user.name + "!")
             self.user = returning_user
 
-    def act_out(self, text):
+    def act_out(self, text: str):
         split_text = text.split("/")
         for i in range(len(split_text)):
             if i % 2 == 0:
