@@ -2,6 +2,7 @@ from multiprocessing.pool import AsyncResult
 from furhat_remote_api import FurhatRemoteAPI
 from config import furhat_host, furhat_voice
 from .robot_connection import RobotConnection
+from typing import List
 
 class FurhatConnection(RobotConnection):
     api: FurhatRemoteAPI
@@ -21,3 +22,12 @@ class FurhatConnection(RobotConnection):
         ret = thread.get().message.lower()
         print("User: " + ret)
         return ret
+    
+    def gestures(self) -> List[str]:
+        return ["Blink", "BrowFrown", "BrowRaise", "CloseEyes", "ExpressAnger", "ExpressDisgust",
+            "ExpressFear", "ExpressSad", "GazeAway", "Nod", "Oh", "OpenEyes", "Roll", "Shake", "Smile", "Surprise",
+            "Thoughtful", "Wink"]
+    
+    def perform_gesture(self, gesture: str):
+        self.api.gesture(name=gesture)
+        print(f"Robot: /{gesture}/")

@@ -2,6 +2,7 @@ import os
 from typing import List
 from openai import OpenAI
 from openai.types.chat import ChatCompletion, ChatCompletionMessageParam
+from config import openai_api_key, openai_base_url, openai_model
 
 
 class AIChat:
@@ -16,8 +17,8 @@ class AIChat:
                 },
             ]
         self.client: OpenAI = OpenAI(
-                api_key=os.getenv("OPENAI_API_KEY"),
-                base_url=os.getenv("OPENAI_BASE_URL"),
+                api_key=openai_api_key,
+                base_url=openai_base_url,
             )
     
     def write_message(self, message: str):
@@ -28,7 +29,7 @@ class AIChat:
 
     def generate_response(self) -> ChatCompletion:
         response = self.client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL"),
+            model=openai_model,
             messages=self.messages,
         )
         self.messages.append({

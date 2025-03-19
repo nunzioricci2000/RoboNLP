@@ -1,6 +1,11 @@
-from furhat_manager import FurhatManager
+from control import Controller
+from robot_connection import FurhatConnection
+from server_connection import ServerConnection
 
-furhat = FurhatManager()
-furhat.set_up()
-furhat.login()
-furhat.chat()
+controller = Controller(
+    robot=FurhatConnection(),
+    server=ServerConnection(),
+)
+
+controller.login()
+controller.start_chatting()
