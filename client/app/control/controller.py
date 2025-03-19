@@ -92,7 +92,7 @@ class Controller:
                 if split_text[i] in self.robot.gestures():
                     self.robot.perform_gesture(split_text[i])
 
-    def chat(self):
+    def start_chatting(self):
         robot_chat = RobotChat(user_info=self.user)
         while(True):
             user_speech = self.robot.listen()
