@@ -31,6 +31,8 @@ In primis va eseguito il file di setup del server. Muovendosi nella cartella **s
 
 Questo installerà le dipendenze necessarie nella cartella **server/libs**.
 
+In seguito va creta nella root del progetto il file **.env** e inserire all'interno il proprio Token API
+
 ### Installazione ambiente di sviluppo client (opzionale)
 
 Aprendo la repository su VSCode, ed installando le opportune estensioni per lo sviluppo python, sarà possibile cercare il file **client/requirements.txt** e cliccare il pulsante in basso a destra "Inizzializza ambiente virtuale". Al termine di questa operazione VSCode riconoscerà le librerie terze e attiverà l'autocompletamento.
@@ -44,7 +46,3 @@ Per avviare l'applicativo sarà sufficiente eseguire nella root del progetto il 
 ```sh
 docker compose up
 ```
-
-## Confugurazione
-
-> **TODO: Scrivere istruzioni di configurazione**
