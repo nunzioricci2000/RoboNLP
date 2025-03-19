@@ -1,6 +1,6 @@
-from furhat_manager import FurhatManager
+from control import Controller
 
-furhat = FurhatManager()
-furhat.set_up()
-furhat.login()
-furhat.chat()
+controller = Controller()
+
+controller.login()
+controller.chat()
