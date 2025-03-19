@@ -1,9 +1,9 @@
 from multiprocessing.pool import AsyncResult
 from furhat_remote_api import FurhatRemoteAPI
-from ServerConnection import ServerConnection
-from UserProfile import UserProfile
-from Chat import RobotChat
-
+from server_connection import ServerConnection
+from user_profile import UserProfile
+from ai_chat import RobotChat
+import config
 
 CONFIRMATION_WORDS = ["si", "sì", "esatto", "confermo", "conferma", "corretto"]
 NUMBERS = ["uno", "due", "tre", "quattro", "cinque", "sei", "sette", "1", "2", "3", "4", "5", "6", "7"]
@@ -11,10 +11,10 @@ GESTURES = ["Blink", "BrowFrown", "BrowRaise", "CloseEyes", "ExpressAnger", "Exp
             "ExpressFear", "ExpressSad", "GazeAway", "Nod", "Oh", "OpenEyes", "Roll", "Shake", "Smile", "Surprise",
             "Thoughtful", "Wink"]
 
-class Furhat:
-    api: FurhatRemoteAPI = None
+class FurhatManager:
+    api: FurhatRemoteAPI
 
-    def set_up(self, host: str = "host.docker.internal"):
+    def set_up(self, host: str = config.furhat_host):
         self.api = FurhatRemoteAPI(host)
         self.api.set_voice(name='Bianca')
         self.api.attend(user="CLOSEST")
@@ -139,7 +139,7 @@ class Furhat:
 
 
 if __name__ == "__main__":
-    furhat = Furhat()
+    furhat = FurhatManager()
     furhat.set_up(host="localhost")
 
     furhat.act_out("Ciao! /BigSmile/Guarda quante /ExpressAnger/ espressioni che so fare!/GazeAway/"
