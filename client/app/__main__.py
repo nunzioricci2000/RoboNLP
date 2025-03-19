@@ -1,15 +1,11 @@
-from multiprocessing.pool import AsyncResult
-from furhat_remote_api import FurhatRemoteAPI
-from ServerConnection import ServerConnection
-from Furhat import Furhat
+from control import Controller
+from robot_connection import FurhatConnection
+from server_connection import ServerConnection
 
+controller = Controller(
+    robot=FurhatConnection(),
+    server=ServerConnection(),
+)
 
-furhat = Furhat()
-furhat.set_up()
-
-furhat.login()
-
-while True:
-    thread: AsyncResult = furhat.furhat_listen_get(async_req=True, language="it-IT")
-    thread.wait()
-    print(thread.get())
+controller.login()
+controller.start_chatting()
