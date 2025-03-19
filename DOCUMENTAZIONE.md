@@ -155,7 +155,7 @@ La classe `FurhatConnection` gestisce l'interazione con il robot Furhat, occupan
 1. Clonare il repository:
 
    ```sh
-   git clone <repository-url> ### TODO: SETTARE URL!!
+   git clone https://github.com/nunzioricci2000/RoboNLP.git
    cd repo
    ```
 
