@@ -93,7 +93,9 @@ class Controller:
                     self.robot.perform_gesture(split_text[i])
 
     def record(self, fact):
-        self.server.post_user_profile_facts(username=self.user.name, fact=fact)
+        if not any(char.isalpha() for char in fact):
+            return
+        self.server.post_user_profile_facts(username=self.user.name, facts=fact)
 
     def start_chatting(self):
         robot_chat = RobotChat(user_info=self.user)

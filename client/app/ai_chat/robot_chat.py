@@ -21,5 +21,6 @@ class RobotChat(AIChat):
         fact = UserAnalyzer().analyze_user(message)
         fact_recorder.record(fact)
         response = self.generate_response()
+        print(self.messages)
         return response.choices[0].message.content
         
