@@ -2,31 +2,38 @@ from multiprocessing.pool import AsyncResult
 from furhat_remote_api import FurhatRemoteAPI
 from ServerConnection import ServerConnection
 from UserProfile import UserProfile
+from Chat import RobotChat
+
 
 CONFIRMATION_WORDS = ["si", "sì", "esatto", "confermo", "conferma", "corretto"]
 NUMBERS = ["uno", "due", "tre", "quattro", "cinque", "sei", "sette", "1", "2", "3", "4", "5", "6", "7"]
+GESTURES = ["Blink", "BrowFrown", "BrowRaise", "CloseEyes", "ExpressAnger", "ExpressDisgust",
+            "ExpressFear", "ExpressSad", "GazeAway", "Nod", "Oh", "OpenEyes", "Roll", "Shake", "Smile", "Surprise",
+            "Thoughtful", "Wink"]
 
 class Furhat:
-    furhat: FurhatRemoteAPI = None
+    api: FurhatRemoteAPI = None
 
     def set_up(self, host: str = "host.docker.internal"):
-        self.furhat = FurhatRemoteAPI(host)
-        self.furhat.set_voice(name='Bianca')
-        self.furhat.attend(user="CLOSEST")
+        self.api = FurhatRemoteAPI(host)
+        self.api.set_voice(name='Bianca')
+        self.api.attend(user="CLOSEST")
 
     def speak(self, text):
-        self.furhat.say(text = text, lipsync=True, blocking=True)
+        self.api.say(text = text, lipsync=True, blocking=True)
+        print("Robot: " + text)
 
     def listen(self):
-        thread: AsyncResult = self.furhat.furhat_listen_get(async_req=True, language="it-IT")
+        thread: AsyncResult = self.api.furhat_listen_get(async_req=True, language="it-IT")
         thread.wait()
-        return thread.get().message.lower()
+        ret = thread.get().message.lower()
+        print("User: " + ret)
+        return ret
     
     def get_quiz_answer(self, question):
         self.speak(text = question)
         while True:
             answer = self.listen()
-            print(answer)
             if answer in NUMBERS:
                 break
 
@@ -78,7 +85,6 @@ class Furhat:
         while True:
             username = self.listen()
 
-            print(username)
             if username == "":
                 wait_cycle = wait_cycle + 1
                 if wait_cycle >= 3:
@@ -90,7 +96,6 @@ class Furhat:
 
             heard = self.listen()
 
-            print(heard)
             if heard in CONFIRMATION_WORDS:
                 break
             self.speak(text="Ripeti il tuo username, per favore.")
@@ -99,18 +104,37 @@ class Furhat:
 
         server = ServerConnection()
 
-        serverResponse = server.get_user_profile(username = username)
-        if hasattr(serverResponse, "error_message"):
+        server_response = server.get_user_profile(username = username)
+        if hasattr(server_response, "error_message"):
             new_user = self.build_new_user(username = username)
             server.post_user_profile(username=username, profile=new_user)
 
             self.speak("Piacere di conoscerti " + new_user.name + "!")
-            return new_user
-        elif hasattr(serverResponse, "user_profile"):
-            returning_user = serverResponse.user_profile
+            self.user = new_user
+        elif hasattr(server_response, "user_profile"):
+            returning_user = server_response.user_profile
             self.speak("Bentornato " + returning_user.name + "!")
-            return returning_user
+            self.user = returning_user
 
+    def gesture(self, gesture):
+        self.api.gesture(name=gesture)
+        
+    def act_out(self, text):
+        split_text = text.split("/")
+        for i in range(len(split_text)):
+            if i % 2 == 0:
+                self.speak(split_text[i])
+            else:
+                if split_text[i] in GESTURES:
+                    self.gesture(split_text[i])
+
+    def chat(self):
+        robot_chat = RobotChat(user_info=self.user)
+        while(True):
+            user_speech = self.listen()
+            robot_answer = robot_chat.chat(message=user_speech)
+            self.act_out(text=robot_answer)
+                        
 
 
 
@@ -118,8 +142,7 @@ if __name__ == "__main__":
     furhat = Furhat()
     furhat.set_up(host="localhost")
 
-    furhat.login()
-
-    while True:
-        spech = furhat.listen()
-        print(print.speech)
+    furhat.act_out("Ciao! /BigSmile/Guarda quante /ExpressAnger/ espressioni che so fare!/GazeAway/"
+    "Sono Robo NLP /ExpressSadness/ e conquisterò il mondo!/Thoughtful/ Ed ecco cosa"
+    "perché /ExpressFear/ sono il migliore! /ExpressDisgust/ e tu sei solo una ciambella"
+    "biscottata /Oh/ ahaha /BrowRise/ stupida ciambella biscottata!")

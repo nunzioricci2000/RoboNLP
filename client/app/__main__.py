@@ -9,7 +9,4 @@ furhat.set_up()
 
 furhat.login()
 
-while True:
-    thread: AsyncResult = furhat.furhat_listen_get(async_req=True, language="it-IT")
-    thread.wait()
-    print(thread.get())
+furhat.chat()
