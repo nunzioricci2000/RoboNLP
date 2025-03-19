@@ -10,7 +10,7 @@ Le responsabilità generali di client e server sono le seguenti:
 - il client, scritto in Python, gestisce l'interazione con il robot Furhat e l'integrazione di OpenAI per l'interpretazione e l'elaborazione del linguaggio naturale;
 - il server, scritto in C,  gestisce e conserva la memoria sulle informazioni degli utenti (personalità ed alcuni argomenti di conversazione notevoli).
 
-Client e server interagiscono fra di loro tramite protocollo HTTP scambiandosi oggetto JSON.
+Client e server interagiscono fra di loro tramite protocollo HTTP scambiandosi oggetti JSON.
 
 #### User Profile
 È utile introdurre il concetto generale di User Profile, astraendo i dettagli implementativi, che si differenziano fra client e server.
@@ -32,6 +32,12 @@ Come già menzionato, server e client comunicano esclusivamente tramite protocol
 - un messaggio di errore, rappresentato da una stringa denominata error (solo nelle risposte server),
 - un singolo fact denominato fact da aggiungere allo user file (solo nelle richieste client).
 
+Per quanto riguarda i path degli URL delle richieste HTTP, abbiamo le seguenti possibilità:
+- root (`/`), richieste alla root sono interpetate come richieste di conferma di avvenuta connessione, 
+- `/user`, è la cartella che contiene tutti i file utente, vi si indirizzano le POST per creare nuovi utenti,
+- `/user/<username>` per richieste relative ad un utente esistente,
+- `/user/<username>/<fieldname>` per richieste relative ad uno specifico campo dell'User File di un utente esistente.
+
 ### Server
 Il server è in grado di accogliere e gestire più richieste alla volta. In risposta ad una richiesta il server può:
 - fornire conferma di connessione,
@@ -44,8 +50,8 @@ Il server è in grado di accogliere e gestire più richieste alla volta. In risp
 Nella cartella server sono contenuti, oltre al `Dockerfile`, un `Makefile`, che gestisce la compilazione del server, mentre il file `setup.sh` gestisce la risoluzione delle dipendenze, scaricandole in `external` e riportando in `libs` i file necessari. In aggiunta a queste due cartelle, è presente la cartella `src` contenente il codice del server. 
 
 Le librerie esterne comprendono:
-- cJSON per interpretare e costruire oggetti JSON,
-- picohttpparser per interpretare le richieste HTTP e costrure le rispote.
+- [cJSON](https://github.com/DaveGamble/cJSON) per interpretare e costruire oggetti JSON,
+- [picohttpparser](https://github.com/h2o/picohttpparser) per interpretare le richieste HTTP e costrure le rispote.
 
 #### Gestione delle connessioni
 La molteplicità delle connessioni accettate è resa possibile grazie all'utilizzo di thread. I thread vengono creati in `main.c` e gestiti in `request_handler.c`.
