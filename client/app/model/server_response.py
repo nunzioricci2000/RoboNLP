@@ -1,6 +1,6 @@
 from typing import List, Optional
 from dataclasses import dataclass
-from user_profile import UserProfile
+from .user_profile import UserProfile
 
 @dataclass
 class ServerResponse:
