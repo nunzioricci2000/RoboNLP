@@ -93,6 +93,8 @@ class Controller:
                     self.robot.perform_gesture(split_text[i])
 
     def record(self, fact):
+        if fact is None or fact == "":
+            return
         if not any(char.isalpha() for char in fact):
             return
         self.server.post_user_profile_facts(username=self.user.name, facts=fact)
