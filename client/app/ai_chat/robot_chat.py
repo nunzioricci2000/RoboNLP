@@ -15,8 +15,13 @@ class RobotChat(AIChat):
 3. Usa le espressioni nel seguente array circondandole con il carattere '/' (es.: "Ciao! /Blink/ Come stai?"): ["Blink", "BrowFrown", "BrowRaise", "CloseEyes", "ExpressAnger", "ExpressDisgust","ExpressFear", "ExpressSad", "GazeAway", "Nod", "Oh", "OpenEyes", "Roll", "Shake", "Smile", "Surprise","Thoughtful", "Wink"]
 """
         super().__init__(f"{system_prompt}\n\n{system_prompt_notes}")
+        self.system_prompt = f"{system_prompt}\n\n{system_prompt_notes}"
     
     def chat(self, message: str, fact_recorder: FactRecorder = FactRecorder()) -> str:
+        self.messages.append({
+            "role": "system",
+            "content": self.system_prompt,
+        })
         self.write_message(message)
         fact = UserAnalyzer().analyze_user(message)
         fact_recorder.record(fact)
