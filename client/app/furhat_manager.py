@@ -4,6 +4,7 @@ from server_connection import ServerConnection
 from model import UserProfile
 from ai_chat import RobotChat
 import config
+from utils.string2number import str2int
 
 CONFIRMATION_WORDS = ["si", "sì", "esatto", "confermo", "conferma", "corretto"]
 NUMBERS = ["uno", "due", "tre", "quattro", "cinque", "sei", "sette", "1", "2", "3", "4", "5", "6", "7"]
@@ -16,7 +17,7 @@ class FurhatManager:
 
     def set_up(self, host: str = config.furhat_host):
         self.api = FurhatRemoteAPI(host)
-        self.api.set_voice(name='Bianca')
+        self.api.set_voice(name=config.furhat_voice)
         self.api.attend(user="CLOSEST")
 
     def speak(self, text):
@@ -34,24 +35,10 @@ class FurhatManager:
         self.speak(text = question)
         while True:
             answer = self.listen()
-            if answer in NUMBERS:
+            if str2int(answer) is not None:
                 break
-
             self.speak("Non ho capito. Per favore rispondi con un numero intero da uno a sette.")
-        if answer in ("1", "uno"):
-            return 1
-        if answer in ("2", "due"):
-            return 2
-        if answer in ("3", "tre"):
-            return 3
-        if answer in ("4", "quattro"):
-            return 4
-        if answer in ("5", "cinque"):
-            return 5
-        if answer in ("6", "sei"):
-            return 6
-        if answer in ("7", "sette"):
-            return 7
+        return str2int(answer)
     
     def build_new_user(self, username):
         self.speak("Benvenuto!")
