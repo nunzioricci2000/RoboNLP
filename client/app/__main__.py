@@ -5,7 +5,7 @@ from server_connection import ServerConnection
 controller = Controller(
     robot=FurhatConnection(),
     server=ServerConnection(),
-    )
+)
 
 controller.login()
-controller.chat()
+controller.start_chatting()
