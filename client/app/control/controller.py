@@ -92,9 +92,23 @@ class Controller:
                 if split_text[i] in self.robot.gestures():
                     self.robot.perform_gesture(split_text[i])
 
+    def record(self, fact):
+        self.server.post_user_profile_facts(username=self.user.name, fact=fact)
+
     def start_chatting(self):
         robot_chat = RobotChat(user_info=self.user)
         while(True):
             user_speech = self.robot.listen()
-            robot_answer = robot_chat.chat(message=user_speech)
+            if user_speech == "":
+                continue
+            if user_speech in ["esci", "stop", "termina", "fine", "chiudi"]:
+                self.robot.speak("Confermi di voler terminare la conversazione?")
+                heard = self.robot.listen()
+                if heard in ["si", "sì", "esatto", "confermo", "conferma", "corretto"]:
+                    self.robot.speak("Grazie per aver parlato con me. A presto!")
+                    break
+                else:
+                    self.robot.speak("Va bene. Continuiamo.")
+                    continue
+            robot_answer = robot_chat.chat(message=user_speech, fact_recorder=self)
             self.act_out(text=robot_answer)
