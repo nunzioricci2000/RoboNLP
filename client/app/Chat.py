@@ -34,7 +34,7 @@ class AIChat:
 
     def generate_response(self) -> ChatCompletion:
         response = self.client.chat.completions.create(
-            model="gemini-2.0-flash",
+            model=os.getenv("OPENAI_MODEL"),
             messages=self.messages,
         )
         self.messages.append({
