@@ -1,7 +1,7 @@
 from multiprocessing.pool import AsyncResult
 from furhat_remote_api import FurhatRemoteAPI
 from server_connection import ServerConnection
-from user_profile import UserProfile
+from model import UserProfile
 from ai_chat import RobotChat
 import config
 
