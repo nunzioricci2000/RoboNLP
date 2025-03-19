@@ -39,7 +39,7 @@ Per quanto riguarda i path degli URL delle richieste HTTP, abbiamo le seguenti p
 - `/user/<username>/<fieldname>` per richieste relative ad uno specifico campo dell'User File di un utente esistente.
 
 ### Server
-Il server è in grado di accogliere e gestire più richieste alla volta. In risposta ad una richiesta il server può:
+Il server è in grado di accogliere e gestire più richieste alla volta. In seguito ad una richiesta il server può:
 - fornire conferma di connessione,
 - reperire ed inviare i dati di un User File salvato in memoria,
 - salvare nuovi User File,
@@ -47,16 +47,19 @@ Il server è in grado di accogliere e gestire più richieste alla volta. In risp
 - eliminare User File esistenti.
 
 #### Struttura
-Nella cartella server sono contenuti, oltre al `Dockerfile`, un `Makefile`, che gestisce la compilazione del server, mentre il file `setup.sh` gestisce la risoluzione delle dipendenze, scaricandole in `external` e riportando in `libs` i file necessari. In aggiunta a queste due cartelle, è presente la cartella `src` contenente il codice del server. 
+Nella cartella server sono contenuti, oltre al `Dockerfile`, un `Makefile`, che gestisce la compilazione del server, ed un il file `setup.sh` gestisce la risoluzione delle dipendenze, scaricandole in `external` e riportando in `libs` i file necessari. In aggiunta a queste due cartelle, è presente la cartella `src` contenente il codice del server. 
 
 Le librerie esterne comprendono:
 - [cJSON](https://github.com/DaveGamble/cJSON) per interpretare e costruire oggetti JSON,
 - [picohttpparser](https://github.com/h2o/picohttpparser) per interpretare le richieste HTTP e costrure le rispote.
 
 #### Gestione delle connessioni
+Le connessioni sono implementate tramite chiamate di sistema per la creazione e gestione delle socket Linux in C. In particolare, l'inazializzazione della socket server è definita nel file `server.c`, la accettazione delle richieste è operata da `main.c`
+ la ricezione di richieste e l'invio di risposte tramite socket avviene a vari livelli del codice riportato in `request_handler.c`.
+
 La molteplicità delle connessioni accettate è resa possibile grazie all'utilizzo di thread. I thread vengono creati in `main.c` e gestiti in `request_handler.c`.
 
-Le connessioni sono implementate tramite chiamate di sistema per la creazione e gestione delle socket Linux in C. In particolare, l'inazializzazione della socket server è definita nel file `server.c`, la ricezione di richieste e l'invio di risposte tramite socket avviene a vari livelli del codice riportato in `request_handler.c`.
+
 
 #### Gestione dei salvataggi
 Tutte le operazioni su file sono contenunte in `file_operations.c`. 
