@@ -6,6 +6,6 @@ services:
   client:
     build: ./client
     environment:
-      - OPENAPI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+      - OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
     env_file:
       - .env
