@@ -2,7 +2,7 @@ from .ai_chat import AIChat
 from .prompt_generator import PromptGenerator
 from .user_analyzer import UserAnalyzer
 from .fact_recorder import FactRecorder
-from user_profile import UserProfile
+from model.user_profile import UserProfile
 
 class RobotChat(AIChat):
     "A class to generate a chat completion"
