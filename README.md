@@ -1,51 +1,48 @@
 # RoboNLP
 
-NOTE: This guide file is available in Italian [here](README-IT.md)!
+NOTE: This file is available in Italian [here](README-IT.md)!
 
-**RoboNLP** is a project developed during the Operating Systems Laboratory course at the Bachelor's Degree in Computer Science at the University of Naples Federico II
+**RoboNLP** is a project developed during the Operating Systems Laboratory course at the Bachelor's Degree in Computer Science at the University of Naples Federico II.
 
-The goal of the project is to implement a server written in C that, by using system calls, instructs a client written in Python to manage the **robot Furhat**.
+The project's goal is to implement a server written in C that, using system calls, instructs a Python client to manage the **Furhat robot**.
 
 ## Architecture
 
 The application is divided into two main parts:
 
-* a **server**, written in C, it employs system calls to handle threads, sockets and file management and makes use of two external libraries ([picohttpparser](https://github.com/h2o/picohttpparser) and [cJSON](https://github.com/DaveGamble/cJSON)) to parse complex data structures;
-* a **client**, written in Python, that uses furhat-remote-api to interact with the robot and [openai](https://github.com/openai/openai-python) to interpret and articulate natural language.
+* a **server**, written in C, uses system calls for thread management, sockets, and file handling, and utilizes two external libraries ([picohttpparser](https://github.com/h2o/picohttpparser) and [cJSON](https://github.com/DaveGamble/cJSON)) for parsing complex data structures;
+* a **client**, written in Python, uses furhat-remote-api for robot interaction and [openai](https://github.com/openai/openai-python) for natural language interpretation and articulation.
 
 ## Description
 
-At launch, the robot will ask the user to identify themselves. If the user is not registeres, they will be given a questionnaire in the form [TIPI] (https://gosling.psy.utexas.edu/scales-weve-developed/ten-item-personality-measure-tipi/) and the results will be saved in the server. Every particular detail of the user will be saved in the server so that the robot may preserve memory of it in the next session.
+At startup, the robot will ask the user to identify themselves. If the user is not registered, they will be given a questionnaire in the form of [TIPI](https://gosling.psy.utexas.edu/scales-weve-developed/ten-item-personality-measure-tipi/), and the results will be saved on the server. Every particular detail about the user will be saved on the server so that the robot can remember it in the next session.
 
-Once the registration phase is complete, the robot will enter its chat mode, and will interact with the user while trying to emulate their personality.
-
+Once the registration phase is complete, the robot will enter chatting mode, interacting with the user while trying to emulate their personality.
 
 ## Installation
 
-> **NOTE**: the following steps have been tested on a MacOS system, but should also work on Linux and Windows through WLS.
+> **NOTE**: the following steps have been tested on MacOS but should also work on Linux and Windows via WLS.
 
-First you need to run the server setup file. After moving into the **server** folder trhough the terminal, execute the following command:
+First, execute the server setup file. Moving to the **server** folder from the terminal, run the following command:
 
 ```sh
 ./setup.sh
 ```
 
-This will install all necessary dependencies in the folder **server/libs**.
+This will install the necessary dependencies in the **server/libs** folder.
 
-### Client development environment installation (optional)
+Then create a **.env** file in the project root and insert your API Token inside it.
 
-By opening the repository on VSCode and installing all necessary extensions for Python development, you will be able to look for the **client/requirements.txt** file and click on the button at the bottom right corner "Initialize virtual environment". By the end of this operations, VSCode will recognize all third party libraries and will activate autocomplete.
+### Client development environment setup (optional)
 
-## Launch
+Opening the repository in VSCode, and installing the appropriate extensions for Python development, you can look for the **client/requirements.txt** file and click the "Initialize virtual environment" button at the bottom right. After this operation, VSCode will recognize third-party libraries and activate autocompletion.
 
-Before starting the application, it's necessary to execute the remote-api skill on the Furhat robot or its simulator. In the version 2.8.0 of the simulator, the skill is already present in the installation of the Furhat SDK available at **~/.furhat/launcher/Plugins/furhat-remote-api.skill**
+## Startup
 
-To launch the application simplu execute the following command at the root folder of the project:
+Before starting the application, it's necessary to run the remote-api skill on the Furhat robot or its simulator. In version 2.8.0 of the simulator, this skill is already present in the Furhat SDK application installation available at **~/.furhat/launcher/Plugins/furhat-remote-api.skill**
+
+To start the application, simply run the following command in the project root:
 
 ```sh
 docker compose up
 ```
-
-## Configuration
-
-> **TODO: Scrivere istruzioni di configurazione**
